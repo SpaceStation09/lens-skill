@@ -1,6 +1,6 @@
-# lens-skills
+# lens-skills (WIP)
 
-本仓库用于维护和实验 Codex Skills，并附带一个可运行的 Lens 博客 demo 项目。
+本仓库用于维护和实验 Codex Skills，并附带一个可运行的 Lens 博客 demo 项目。现阶段仍处于测试阶段，谨慎使用。
 
 ## 目录结构
 
