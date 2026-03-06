@@ -176,7 +176,146 @@ export async function fetchAuthorPosts(authorAddress: string) {
     createdAt: item.createdAt,
     title: item.metadata?.title || "(untitled)",
     content: item.metadata?.content || "",
+    tags: Array.isArray(item.metadata?.tags)
+      ? item.metadata.tags.filter((tag: unknown) => typeof tag === "string")
+      : [],
     contentUri: item.contentUri,
+    authorAddress: item.author?.address,
     author: item.author?.address,
   }));
+}
+
+export type LensProfile = {
+  address: string;
+  handle: string;
+  displayName: string;
+  bio: string;
+  avatarUrl?: string;
+  followers?: number;
+  following?: number;
+};
+
+export type WalletLensAccount = {
+  address: string;
+  handle?: string;
+  displayName?: string;
+};
+
+function pickAvatarUrl(picture: any): string | undefined {
+  if (!picture) return undefined;
+  if (typeof picture === "string") return picture;
+  if (typeof picture?.uri === "string") return picture.uri;
+  if (typeof picture?.optimized?.uri === "string") return picture.optimized.uri;
+  if (typeof picture?.raw?.uri === "string") return picture.raw.uri;
+  return undefined;
+}
+
+export async function fetchProfileByHandle(handle: string): Promise<LensProfile> {
+  const normalized = handle.trim().replace(/^@/, "");
+  if (!normalized) {
+    throw new Error("Handle is required.");
+  }
+
+  const result = await fetchAccount(publicClient as any, {
+    username: { localName: normalized },
+  } as any);
+  const accountData: any = unwrap(result as any, "Fetch account failed");
+
+  const address = String(accountData?.address || "");
+  if (!address) {
+    throw new Error("Account address is missing from Lens response.");
+  }
+
+  const metadata = accountData?.metadata || {};
+  const stats = accountData?.stats || {};
+
+  return {
+    address,
+    handle: normalized,
+    displayName: String(metadata?.name || normalized),
+    bio: String(metadata?.bio || ""),
+    avatarUrl: pickAvatarUrl(metadata?.picture),
+    followers:
+      typeof stats?.followers === "number"
+        ? stats.followers
+        : typeof stats?.followersCount === "number"
+          ? stats.followersCount
+          : undefined,
+    following:
+      typeof stats?.following === "number"
+        ? stats.following
+        : typeof stats?.followingCount === "number"
+          ? stats.followingCount
+          : undefined,
+  };
+}
+
+function normalizeHandle(accountData: any): string | undefined {
+  const candidates = [
+    accountData?.username?.localName,
+    accountData?.username?.value,
+    accountData?.handle?.localName,
+    accountData?.handle,
+  ];
+  for (const value of candidates) {
+    if (typeof value === "string" && value.trim()) {
+      return value.trim().replace(/^@/, "");
+    }
+  }
+  return undefined;
+}
+
+function toLensProfile(accountData: any): LensProfile {
+  const address = String(accountData?.address || "");
+  const metadata = accountData?.metadata || {};
+  const stats = accountData?.stats || {};
+  const handle = normalizeHandle(accountData) || "";
+  const displayName = String(metadata?.name || handle || shortAddressForLabel(address));
+
+  return {
+    address,
+    handle,
+    displayName,
+    bio: String(metadata?.bio || ""),
+    avatarUrl: pickAvatarUrl(metadata?.picture),
+    followers:
+      typeof stats?.followers === "number"
+        ? stats.followers
+        : typeof stats?.followersCount === "number"
+          ? stats.followersCount
+          : undefined,
+    following:
+      typeof stats?.following === "number"
+        ? stats.following
+        : typeof stats?.followingCount === "number"
+          ? stats.followingCount
+          : undefined,
+  };
+}
+
+function shortAddressForLabel(address: string): string {
+  if (address.length <= 12) return address;
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+export async function fetchProfileByAddress(address: string): Promise<LensProfile> {
+  const result = await fetchAccount(publicClient as any, { address: evmAddress(address) } as any);
+  const accountData: any = unwrap(result as any, "Fetch account failed");
+  const profile = toLensProfile(accountData);
+  if (!profile.address) {
+    throw new Error("Account address is missing from Lens response.");
+  }
+  return profile;
+}
+
+export async function fetchWalletAccounts(walletAddress: string): Promise<WalletLensAccount[]> {
+  const accounts = await fetchOwnedAccountsBy(publicClient as any, walletAddress);
+  return (accounts || []).map((item: any) => {
+    const profile = toLensProfile(item);
+    return {
+      address: profile.address,
+      handle: profile.handle || undefined,
+      displayName: profile.displayName || undefined,
+    };
+  });
 }

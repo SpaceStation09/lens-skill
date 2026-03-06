@@ -7,6 +7,10 @@
 ```txt
 lens-skills/
 ├── AGENTS.md
+├── packages/
+│   ├── lens-blog-core/
+│   ├── lens-blog-adapter-lens/
+│   └── lens-blog-theme-default/
 ├── skills/
 │   ├── lens-blog/
 │   │   ├── SKILL.md
@@ -23,6 +27,9 @@ lens-skills/
 
 - `skills/lens-blog`: 使用 Lens Protocol 构建个人博客的技能说明（含 API 参考与兼容性注意事项）
 - `skills/demo-project-starter`: 快速生成 demo 项目的通用技能模板
+- `packages/lens-blog-core`: 前端壳层和类型契约（本地包）
+- `packages/lens-blog-adapter-lens`: Lens 数据适配器（本地包）
+- `packages/lens-blog-theme-default`: 默认主题实现（本地包）
 - `lens-blog-demo`: React + TypeScript + Lens SDK 的最小可运行示例
 
 ## 快速开始（运行 demo）
@@ -38,13 +45,13 @@ npm run dev
 
 ```env
 VITE_LENS_NETWORK=testnet
-# VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 # VITE_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
 ```
 
-- 默认无需额外配置即可运行 demo（默认 `testnet` + 默认 Lens global app address）
+- 运行 demo 时，`VITE_WALLETCONNECT_PROJECT_ID` 当前阶段建议视为必填
 - `VITE_LENS_NETWORK`: 可选，`testnet` 或 `mainnet`
-- `VITE_WALLETCONNECT_PROJECT_ID`: 可选，WalletConnect Cloud 项目 ID
+- `VITE_WALLETCONNECT_PROJECT_ID`: WalletConnect Cloud 项目 ID（当前阶段必填）
 - `VITE_LENS_APP_ADDRESS`: 可选，覆盖默认 App 地址
 
 ## 技能使用方式

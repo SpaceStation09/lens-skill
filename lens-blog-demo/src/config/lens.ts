@@ -22,7 +22,7 @@ export function resolveLensAppAddress(network: LensNetwork, override?: string): 
 export function getLensRuntimeConfig() {
   const network = resolveLensNetwork(import.meta.env.VITE_LENS_NETWORK);
   const appAddress = resolveLensAppAddress(network, import.meta.env.VITE_LENS_APP_ADDRESS);
-  const walletConnectProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "demo-project-id";
+  const walletConnectProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 
   return {
     network,
@@ -30,4 +30,3 @@ export function getLensRuntimeConfig() {
     walletConnectProjectId,
   };
 }
-

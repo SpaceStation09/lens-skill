@@ -11,8 +11,8 @@ description: Guides agents to build a personal blog system using Lens Protocol S
 
 1. 默认网络固定为 `testnet`。
 2. 默认 `app address` 使用对应网络的 **Lens global app address**（不是用户手填）。
-3. 环境变量仅作为可选覆盖，不应成为运行前置条件。
-4. 生成前端时，优先保证“零配置可启动”（至少可连接钱包、查账户、查文章）。
+3. 当前阶段 `VITE_WALLETCONNECT_PROJECT_ID` 视为必填（WalletConnect 类钱包连接依赖该值）。
+4. 其余 Lens 环境变量可选覆盖，不应成为运行前置条件。
 
 ## 版本要求（高优先级）
 
@@ -42,7 +42,7 @@ type LensNetwork = "testnet" | "mainnet";
 type LensRuntimeConfig = {
   network: LensNetwork; // default: testnet
   appAddress: `0x${string}`; // default: Lens global app address by network
-  walletConnectProjectId?: string; // optional override
+  walletConnectProjectId: string; // required in current stage
 };
 ```
 
@@ -128,18 +128,19 @@ const authenticated = await client.login({
 
 ## 环境变量策略（低优先）
 
-推荐仅保留这两个可选变量：
+推荐保留以下变量：
 
 ```env
 VITE_LENS_NETWORK=testnet
+VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 VITE_LENS_APP_ADDRESS=0x...
 ```
 
 规则：
 
 1. 缺失 `VITE_LENS_NETWORK` 时必须默认 `testnet`。
-2. 缺失 `VITE_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
-3. 不应要求用户为了跑通 demo 先配置一组 Lens 专有 env 变量。
+2. `VITE_WALLETCONNECT_PROJECT_ID` 当前阶段必须提供（否则 WalletConnect 连接不稳定或失败）。
+3. 缺失 `VITE_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
 
 ## 查询文章
 

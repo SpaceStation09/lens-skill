@@ -5,6 +5,15 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "react": ["./node_modules/react"],
+      "react/jsx-runtime": ["./node_modules/react/jsx-runtime"],
+      "react-dom": ["./node_modules/react-dom"],
+      "@lens-blog/core": ["../packages/lens-blog-core/src/index.ts"],
+      "@lens-blog/adapter-lens": ["../packages/lens-blog-adapter-lens/src/index.ts"],
+      "@lens-blog/theme-default": ["../packages/lens-blog-theme-default/src/index.tsx"]
+    },
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

@@ -17,20 +17,21 @@ npm install
 npm run dev
 ```
 
+说明：当前通过本地 alias 引入包源码（`@lens-blog/core`、`@lens-blog/adapter-lens`、`@lens-blog/theme-default`），用于未发布 npm 前的本地测试。
+
 打开浏览器访问输出的本地地址（通常是 `http://localhost:5173`）。
 
 ## 环境变量
 
-- 默认无需配置环境变量即可启动。
 - `VITE_LENS_NETWORK` 可选：`testnet` 或 `mainnet`（默认 `testnet`）
 - `VITE_LENS_APP_ADDRESS` 可选：覆盖当前网络默认的 Lens global app address
-- `VITE_WALLETCONNECT_PROJECT_ID` 可选：提升 WalletConnect 连接体验（仅 injected wallet 时可不填）
+- `VITE_WALLETCONNECT_PROJECT_ID` 当前阶段必填：WalletConnect 类钱包连接依赖该值
 
 示例：
 
 ```env
 VITE_LENS_NETWORK=testnet
-# VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 # VITE_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
 ```
 
