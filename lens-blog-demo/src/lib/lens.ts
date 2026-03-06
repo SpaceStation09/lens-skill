@@ -12,10 +12,11 @@ import { account, article } from "@lens-protocol/metadata";
 import { PageSize } from "@lens-protocol/graphql";
 import { evmAddress, uri } from "@lens-protocol/types";
 import type { WalletClient } from "viem";
+import { getLensRuntimeConfig } from "../config/lens";
 
-const lensNetwork = (import.meta.env.VITE_LENS_NETWORK || "testnet").toLowerCase();
-const lensEnvironment = lensNetwork === "mainnet" ? mainnet : testnet;
-const selectedNetwork = lensNetwork === "mainnet" ? "mainnet" : "testnet";
+const runtime = getLensRuntimeConfig();
+const lensEnvironment = runtime.network === "mainnet" ? mainnet : testnet;
+const selectedNetwork = runtime.network;
 const alternateNetwork = selectedNetwork === "mainnet" ? "testnet" : "mainnet";
 
 const publicClient = PublicClient.create({ environment: lensEnvironment });
@@ -37,7 +38,7 @@ function unwrap<T>(result: ResultLike<T>, fallback: string): T {
 
 export async function loginAsAccountOwner(params: {
   walletClient: WalletClient;
-  appAddress: string;
+  appAddress?: string;
   accountAddress: string;
 }) {
   const { walletClient, appAddress, accountAddress } = params;
@@ -48,7 +49,7 @@ export async function loginAsAccountOwner(params: {
 
   const authenticated = await (publicClient as any).login({
     accountOwner: {
-      app: evmAddress(appAddress),
+      app: evmAddress(appAddress || runtime.appAddress),
       owner: evmAddress(ownerAddress),
       account: evmAddress(accountAddress),
     },
@@ -108,7 +109,7 @@ export async function publishArticle(params: {
 
 export async function createLensAccount(params: {
   walletClient: WalletClient;
-  appAddress: string;
+  appAddress?: string;
   username: string;
   displayName?: string;
   bio?: string;
@@ -121,7 +122,7 @@ export async function createLensAccount(params: {
 
   const authenticated = await (publicClient as any).login({
     onboardingUser: {
-      app: evmAddress(appAddress),
+      app: evmAddress(appAddress || runtime.appAddress),
       wallet: evmAddress(ownerAddress),
     },
     signMessage: signMessageWith(walletClient),

@@ -38,13 +38,14 @@ npm run dev
 
 ```env
 VITE_LENS_NETWORK=testnet
-VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-VITE_LENS_APP_ADDRESS=0xYourLensAppAddress
+# VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+# VITE_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
 ```
 
-- `VITE_LENS_NETWORK`: `testnet` 或 `mainnet`
-- `VITE_WALLETCONNECT_PROJECT_ID`: WalletConnect Cloud 项目 ID
-- `VITE_LENS_APP_ADDRESS`: 你在 Lens 注册的 App 地址
+- 默认无需额外配置即可运行 demo（默认 `testnet` + 默认 Lens global app address）
+- `VITE_LENS_NETWORK`: 可选，`testnet` 或 `mainnet`
+- `VITE_WALLETCONNECT_PROJECT_ID`: 可选，WalletConnect Cloud 项目 ID
+- `VITE_LENS_APP_ADDRESS`: 可选，覆盖默认 App 地址
 
 ## 技能使用方式
 

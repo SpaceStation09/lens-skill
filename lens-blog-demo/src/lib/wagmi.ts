@@ -1,11 +1,10 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { getDefaultConfig } from "connectkit";
 import { createConfig, http } from "wagmi";
+import { getLensRuntimeConfig } from "../config/lens";
 
-const walletConnectProjectId =
-  import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "demo-project-id";
-const lensNetwork = (import.meta.env.VITE_LENS_NETWORK || "testnet").toLowerCase();
-const selectedChain = lensNetwork === "mainnet" ? chains.mainnet : chains.testnet;
+const runtime = getLensRuntimeConfig();
+const selectedChain = runtime.network === "mainnet" ? chains.mainnet : chains.testnet;
 
 export const wagmiConfig = createConfig(
   getDefaultConfig({
@@ -14,6 +13,6 @@ export const wagmiConfig = createConfig(
     transports: {
       [selectedChain.id]: http(selectedChain.rpcUrls.default.http[0]),
     },
-    walletConnectProjectId,
+    walletConnectProjectId: runtime.walletConnectProjectId,
   })
 );

@@ -8,6 +8,7 @@ import {
   loginAsAccountOwner,
   publishArticle,
 } from "./lib/lens";
+import { getLensRuntimeConfig, resolveLensAppAddress } from "./config/lens";
 
 type PostItem = {
   id: string;
@@ -22,10 +23,11 @@ export default function App() {
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
 
-  const defaultAppAddress = import.meta.env.VITE_LENS_APP_ADDRESS || "";
+  const runtime = getLensRuntimeConfig();
 
-  const [appAddress, setAppAddress] = useState(defaultAppAddress);
+  const [appAddressOverride, setAppAddressOverride] = useState("");
   const [accountAddress, setAccountAddress] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [createUsername, setCreateUsername] = useState("");
   const [createDisplayName, setCreateDisplayName] = useState("");
   const [createBio, setCreateBio] = useState("");
@@ -39,6 +41,10 @@ export default function App() {
   const sessionClientRef = useRef<any>(null);
 
   const canUseLens = useMemo(() => Boolean(walletClient && isConnected), [walletClient, isConnected]);
+  const resolvedAppAddress = useMemo(
+    () => resolveLensAppAddress(runtime.network, appAddressOverride.trim() || undefined),
+    [runtime.network, appAddressOverride]
+  );
 
   async function onCheckAccounts() {
     if (!address) {
@@ -62,15 +68,15 @@ export default function App() {
   }
 
   async function onLogin() {
-    if (!walletClient || !appAddress || !accountAddress) {
-      setStatus("请先连接钱包并填写 App 地址、Account 地址。");
+    if (!walletClient || !accountAddress) {
+      setStatus("请先连接钱包并填写 Account 地址。");
       return;
     }
     try {
       setStatus("正在以 Account Owner 登录 Lens...");
       const sessionClient = await loginAsAccountOwner({
         walletClient,
-        appAddress,
+        appAddress: resolvedAppAddress,
         accountAddress,
       });
       sessionClientRef.current = sessionClient;
@@ -81,8 +87,8 @@ export default function App() {
   }
 
   async function onCreateAccount() {
-    if (!walletClient || !appAddress || !createUsername) {
-      setStatus("请先连接钱包，并填写 App 地址与用户名。");
+    if (!walletClient || !createUsername) {
+      setStatus("请先连接钱包，并填写用户名。");
       return;
     }
 
@@ -90,7 +96,7 @@ export default function App() {
       setStatus("正在创建 Lens 账户（Onboarding）...");
       const result = await createLensAccount({
         walletClient,
-        appAddress,
+        appAddress: resolvedAppAddress,
         username: createUsername.trim(),
         displayName: createDisplayName.trim(),
         bio: createBio.trim(),
@@ -152,8 +158,24 @@ export default function App() {
       <section className="card">
         <h1>Lens Blog Demo</h1>
         <p>基于 Lens Protocol 的个人博客最小示例：连接钱包、登录账户、发文、查文。</p>
+        <p className="hint">
+          当前网络: {runtime.network} · 默认 App 地址: {resolvedAppAddress}
+        </p>
         <ConnectKitButton />
         <p className="hint">钱包状态: {canUseLens ? "已连接" : "未连接"}</p>
+        <button onClick={() => setShowAdvanced((v) => !v)}>
+          {showAdvanced ? "隐藏高级设置" : "显示高级设置"}
+        </button>
+        {showAdvanced ? (
+          <label>
+            覆盖 App 地址（可选）
+            <input
+              value={appAddressOverride}
+              onChange={(e) => setAppAddressOverride(e.target.value)}
+              placeholder={runtime.appAddress}
+            />
+          </label>
+        ) : null}
       </section>
 
       <section className="card">
@@ -180,10 +202,7 @@ export default function App() {
 
       <section className="card">
         <h2>3) Account Owner 登录</h2>
-        <label>
-          Lens App 地址
-          <input value={appAddress} onChange={(e) => setAppAddress(e.target.value)} placeholder="0x..." />
-        </label>
+        <p className="hint">登录时自动使用当前网络默认 App 地址（可在高级设置中覆盖）。</p>
         <label>
           Lens Account 地址
           <input value={accountAddress} onChange={(e) => setAccountAddress(e.target.value)} placeholder="0x..." />

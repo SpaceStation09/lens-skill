@@ -7,6 +7,13 @@ description: Guides agents to build a personal blog system using Lens Protocol S
 
 本 skill 指导 agent 使用 Lens Protocol 构建个人博客，覆盖最小可用主流程：连接钱包、登录、发布文章、按作者查询文章。
 
+## 默认策略（必须遵守）
+
+1. 默认网络固定为 `testnet`。
+2. 默认 `app address` 使用对应网络的 **Lens global app address**（不是用户手填）。
+3. 环境变量仅作为可选覆盖，不应成为运行前置条件。
+4. 生成前端时，优先保证“零配置可启动”（至少可连接钱包、查账户、查文章）。
+
 ## 版本要求（高优先级）
 
 必须优先使用 `@lens-protocol/client` canary 代际（支持 `PublicClient`、`@lens-protocol/client/actions`）。
@@ -22,6 +29,35 @@ npm install wagmi viem connectkit @tanstack/react-query zod
 说明：
 - `evmAddress`、`uri` 来自 `@lens-protocol/types`，不是 `@lens-protocol/client`。
 - `StorageClient.create()` 可直接使用默认环境。
+
+## Lens 概念封装（必须统一）
+
+在生成项目时，必须先封装一个集中配置层（例如 `src/config/lens.ts`），不要把 Lens 专有概念散落在页面组件里。
+
+建议封装如下：
+
+```ts
+type LensNetwork = "testnet" | "mainnet";
+
+type LensRuntimeConfig = {
+  network: LensNetwork; // default: testnet
+  appAddress: `0x${string}`; // default: Lens global app address by network
+  walletConnectProjectId?: string; // optional override
+};
+```
+
+并在同一文件中提供：
+
+1. `resolveLensNetwork()`：默认返回 `testnet`，允许 `VITE_LENS_NETWORK` 覆盖。
+2. `resolveLensAppAddress(network)`：按网络返回 Lens global app address，允许 `VITE_LENS_APP_ADDRESS` 覆盖。
+3. `getLensRuntimeConfig()`：统一输出运行时配置，业务代码只依赖这个入口。
+
+约束：
+
+1. `App Address`：Lens 应用身份（用于 `onboardingUser.app` / `accountOwner.app`）。
+2. `Owner Address`：当前签名钱包地址。
+3. `Account Address`：Lens 账户地址（可由 `fetchAccountsBulk` 自动发现）。
+4. 不允许在多个页面或 hooks 中重复实现上述映射逻辑。
 
 ## 快速流程
 
@@ -72,9 +108,11 @@ const result = await post(sessionClient, {
 ### 分支 1：已有账户（Account Owner）
 
 ```ts
+const appAddress = resolveLensAppAddress(network); // 默认 Lens global app address，可选 env 覆盖
+
 const authenticated = await client.login({
   accountOwner: {
-    app: evmAddress("<your-app-address>"),
+    app: evmAddress(appAddress),
     owner: evmAddress("<wallet-address>"),
     account: evmAddress("<lens-account-address>"),
   },
@@ -84,9 +122,24 @@ const authenticated = await client.login({
 
 ### 分支 2：无账户（Onboarding User -> 创建账户）
 
-- 先 `client.login({ onboardingUser: { app, wallet }, signMessage })`
+- 先 `client.login({ onboardingUser: { app: resolveLensAppAddress(network), wallet }, signMessage })`
 - 再 `createAccountWithUsername(...)`
 - 交易后 `fetchAccount(...)` + `sessionClient.switchAccount(...)`
+
+## 环境变量策略（低优先）
+
+推荐仅保留这两个可选变量：
+
+```env
+VITE_LENS_NETWORK=testnet
+VITE_LENS_APP_ADDRESS=0x...
+```
+
+规则：
+
+1. 缺失 `VITE_LENS_NETWORK` 时必须默认 `testnet`。
+2. 缺失 `VITE_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
+3. 不应要求用户为了跑通 demo 先配置一组 Lens 专有 env 变量。
 
 ## 查询文章
 
