@@ -78,8 +78,25 @@ interface LensBlogAdapter {
   getProfileByHandle(handle: string): Promise<ProfileView>;
   getProfileByAddress(address: string): Promise<ProfileView>;
   getPostsByAuthor(authorAddress: string): Promise<PostView[]>;
+  getPostById(postId: string): Promise<PostView | null>;
   publishPost(input: PublishInput): Promise<void>;
 }
+
+## View Permission Contract
+
+```ts
+{
+  isAuthenticated: boolean;
+  activeHandle: string;
+  isOwnerView: boolean;
+}
+```
+
+Rules:
+
+1. `isAuthenticated` is true only when `accountState === "authenticated"`.
+2. `isOwnerView` is true only when `isAuthenticated` and `normalize(activeHandle) === normalize(profile.handle)`.
+3. `profile` and `post` routes are publicly readable; `write` route requires `isOwnerView`.
 ```
 
 ## Theme Config Contract
@@ -88,7 +105,7 @@ Theme selection should be config-driven:
 
 ```ts
 {
-  themeId?: "default";
+  themeId?: "default" | "neo";
 }
 ```
 
@@ -96,5 +113,6 @@ Rules:
 
 1. If `themeId` is missing or invalid, resolve to `default`
 2. Theme rendering must come from theme package (no ad-hoc switch in app page component)
-3. New theme should be published/linked as independent package (`@lens-blog/theme-*`)
-4. Host app may inject external `theme` object (from local/npm package)
+3. Theme must be resolved before app startup via config/env, not runtime page toggle
+4. Existing themes should be consumed as independent packages (`@lens-blog/theme-*`)
+5. Theme development is out of scope for app-builder workflow; use dedicated theme-dev skill

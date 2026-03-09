@@ -9,6 +9,9 @@ export type RouteState =
 export type ThemeRenderContext = {
   route: RouteState;
   accountState: AccountState;
+  isAuthenticated: boolean;
+  isOwnerView: boolean;
+  activeHandle: string;
   connectWalletNode?: JSX.Element;
   walletAddress?: string;
   status: string;
@@ -21,10 +24,19 @@ export type ThemeRenderContext = {
   query: string;
   setQuery: (value: string) => void;
   pagePosts: PostView[];
+  activePost: PostView | null;
   currentPage: number;
   pageCount: number;
   toPrevPage: () => void;
   toNextPage: () => void;
+  draftTitle: string;
+  setDraftTitle: (value: string) => void;
+  draftContent: string;
+  setDraftContent: (value: string) => void;
+  draftTags: string;
+  setDraftTags: (value: string) => void;
+  isPublishing: boolean;
+  publishDraft: () => void;
   navigate: (path: string) => void;
   shortAddress: (address?: string) => string;
   identiconDataUri: (address: string) => string;

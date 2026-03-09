@@ -32,15 +32,16 @@ description: Governs blog frontend architecture, feature contract, and UI SDK se
 
 1. `demo-project-starter`：创建可运行项目骨架
 2. `lens-blog`：接入 Lens 业务能力（连接钱包、登录、发布、拉取）
-3. `blog-frontend-governor`：实现前端 contract、状态机和主题层
+3. `blog-frontend-governor`：实现前端 contract、状态机和“已有主题”接入层
 
-### B. 主题选择交互（必须）
+### B. 主题接入策略（必须）
 
-在前端实现阶段，agent 必须询问一次主题偏好：
+在前端实现阶段，agent 必须按“配置驱动”处理主题：
 
 1. 若用户指定主题：使用用户指定主题
 2. 若用户未指定主题：使用默认主题
-3. 当前阶段默认主题为唯一内置主题（后续可扩展更多主题）
+3. 主题在启动前通过配置确定（例如 `NEXT_PUBLIC_BLOG_THEME`），不做运行时主题切换 UI
+4. 本 skill 只接入已有主题包，不开发新主题（新主题开发由独立 `theme-develop` skill 负责）
 
 ### C. 前端实现流程（必须按顺序）
 
@@ -67,3 +68,4 @@ description: Governs blog frontend architecture, feature contract, and UI SDK se
 1. 不允许同时引入多个重型 UI 体系（例如同时大规模混用 Antd + MUI + shadcn）
 2. 不允许跳过移动端可读性检查
 3. 不允许为了视觉效果破坏正文信息密度与可读性
+4. 不允许因为主题接入需求修改 `core/adapter` 业务契约

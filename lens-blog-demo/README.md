@@ -24,12 +24,14 @@ npm run dev
 - `NEXT_PUBLIC_LENS_NETWORK` 可选：`testnet` 或 `mainnet`（默认 `testnet`）
 - `NEXT_PUBLIC_LENS_APP_ADDRESS` 可选：覆盖当前网络默认的 Lens global app address
 - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 当前阶段必填：WalletConnect 连接依赖该值
+- `NEXT_PUBLIC_BLOG_THEME` 可选：`default` 或 `neo`（默认 `default`，启动前配置）
 
 示例：
 
 ```env
 NEXT_PUBLIC_LENS_NETWORK=testnet
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+NEXT_PUBLIC_BLOG_THEME=default
 # NEXT_PUBLIC_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
 ```
 
@@ -39,7 +41,7 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 - `src/lib/lens.ts`：Lens SDK 的调用封装
 - `@lens-blog/core`：状态机 + 路由壳层
 - `@lens-blog/adapter-lens`：数据适配层
-- `@lens-blog/theme-default`：默认主题层
+- `@lens-blog/theme-default` / `@lens-blog/theme-neo`：主题层（通过环境变量选择）
 
 ## 说明
 

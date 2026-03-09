@@ -18,6 +18,9 @@
 10. SEO 基础：`title`、`description`、Open Graph 基础信息
 11. 响应式：移动端（<=768px）正文可读、导航可用
 12. 状态处理：加载态、空态、错误态
+13. 视角规则：必须区分 `Owner View` 与 `Viewer View`
+14. 权限规则：`/:handle` 与 `/p/:postId` 可游客访问；`/write` 必须已登录 Lens account 且为 owner
+15. 账户操作入口（连接钱包 / Login Lens / Switch Lens Account）必须放在全局顶部导航，不放在 profile 信息卡内
 
 ## 1.1 头像策略（MUST）
 
@@ -30,6 +33,13 @@
 1. 未连接钱包：显示品牌 landing，并提供 Connect Wallet 主按钮
 2. 已连接未登录：展示该钱包下可用 Lens account 列表，用户选择后登录
 3. 已登录：自动进入已登录 handle 的 `/:handle` Profile Landing
+
+## 1.3 视角判定（MUST）
+
+1. `Owner View` 判定：`accountState === authenticated` 且 `activeHandle == currentProfile.handle`
+2. 其他全部视为 `Viewer View`（包括未登录、已连接未登录、已登录但访问他人 profile）
+3. `Write` 入口仅 `Owner View` 显示
+4. 直接访问 `/write` 时若不满足 owner 条件，必须重定向回可读页面并给出状态提示
 
 ## 2. 推荐功能（SHOULD）
 

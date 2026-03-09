@@ -12,5 +12,6 @@ export interface LensBlogAdapter {
   getProfileByHandle(handle: string): Promise<ProfileView>;
   getProfileByAddress(address: string): Promise<ProfileView>;
   getPostsByAuthor(authorAddress: string): Promise<PostView[]>;
+  getPostById(postId: string): Promise<PostView | null>;
   publishPost(input: PublishInput): Promise<void>;
 }

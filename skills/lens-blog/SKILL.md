@@ -13,6 +13,7 @@ description: Guides agents to build a personal blog system using Lens Protocol S
 2. 默认 `app address` 使用对应网络的 **Lens global app address**（不是用户手填）。
 3. 当前阶段 `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 视为必填（WalletConnect 类钱包连接依赖该值）。
 4. 其余 Lens 环境变量可选覆盖，不应成为运行前置条件。
+5. 本 skill 不负责 theme 设计与开发；仅允许接入“已存在的 theme 包”。
 
 ## 版本要求（高优先级）
 
@@ -66,6 +67,15 @@ type LensRuntimeConfig = {
 3. 用 `article()` 生成 metadata，`storageClient.uploadAsJson()` 得到 `lens://...`。
 4. 调用 `post(sessionClient, { contentUri: uri(...) })` 发布。
 5. 调用 `fetchPosts(publicClient, { filter: { authors: [...] } })` 拉取文章。
+
+## 页面权限与视角（必须）
+
+1. `/:handle`、`/p/:postId` 必须允许未登录用户访问（公开可读）。
+2. `/write` 必须要求 Lens account 已登录，且当前登录账号是该 profile owner。
+3. UI 必须区分 `Owner View` 和 `Viewer View`：
+   - `Owner View`：显示写作能力（如 `Write`、发布等）。
+   - `Viewer View`：隐藏写作入口，不允许进入写作流程。
+4. 账户相关按钮（Connect Wallet / Login Lens / Switch Lens Account）应放在全局导航区域，不应放在 profile 信息卡内部。
 
 ## 创建博文流程
 
@@ -133,6 +143,7 @@ const authenticated = await client.login({
 ```env
 NEXT_PUBLIC_LENS_NETWORK=testnet
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+NEXT_PUBLIC_BLOG_THEME=default
 NEXT_PUBLIC_LENS_APP_ADDRESS=0x...
 ```
 
@@ -141,6 +152,13 @@ NEXT_PUBLIC_LENS_APP_ADDRESS=0x...
 1. 缺失 `NEXT_PUBLIC_LENS_NETWORK` 时必须默认 `testnet`。
 2. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 当前阶段必须提供（否则 WalletConnect 连接不稳定或失败）。
 3. 缺失 `NEXT_PUBLIC_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
+4. `NEXT_PUBLIC_BLOG_THEME` 仅用于启动前主题选择；本 skill 不实现运行时主题切换 UI。
+
+## Theme 边界（必须）
+
+1. 用户可指定已有主题包（例如 `@lens-blog/theme-default`、`@lens-blog/theme-neo`）。
+2. agent 只做主题接入（依赖、导入、配置），不在本 skill 内开发新主题。
+3. 若用户要求“做一个新主题”，应转交独立 theme 开发 skill（例如后续的 `theme-develop`）。
 
 ## 查询文章
 

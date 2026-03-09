@@ -6,6 +6,7 @@ import { useAccount, useWalletClient } from "wagmi";
 import { createLensAdapter } from "@lens-blog/adapter-lens";
 import { BlogFrontendApp } from "@lens-blog/core";
 import { defaultTheme } from "@lens-blog/theme-default";
+import { neoTheme } from "@lens-blog/theme-neo";
 import {
   fetchAuthorPosts,
   fetchPostById,
@@ -16,9 +17,13 @@ import {
   publishArticle,
 } from "../lib/lens";
 
+type ThemeId = "default" | "neo";
+
 export function BlogClientApp() {
   const { address, isConnected, status } = useAccount();
   const { data: walletClient } = useWalletClient();
+  const configuredTheme: ThemeId = process.env.NEXT_PUBLIC_BLOG_THEME === "neo" ? "neo" : "default";
+  const activeTheme = configuredTheme === "neo" ? neoTheme : defaultTheme;
 
   const adapter = useMemo(
     () =>
@@ -39,7 +44,7 @@ export function BlogClientApp() {
   return (
     <BlogFrontendApp
       adapter={adapter}
-      theme={defaultTheme}
+      theme={activeTheme}
       walletAddress={address}
       isWalletConnected={isConnected}
       walletConnectionStatus={status}

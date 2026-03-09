@@ -33,6 +33,10 @@ function shortAddress(address?: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
+function normalizeHandle(input?: string): string {
+  return String(input || "").trim().replace(/^@/, "").toLowerCase();
+}
+
 function hashString(input: string): number {
   let hash = 0;
   for (let i = 0; i < input.length; i += 1) {
@@ -80,6 +84,10 @@ export function BlogFrontendApp({
   const [posts, setPosts] = useState<PostView[]>([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftContent, setDraftContent] = useState("");
+  const [draftTags, setDraftTags] = useState("");
+  const [isPublishing, setIsPublishing] = useState(false);
   const [status, setStatus] = useState("Ready");
 
   const walletConnected = isWalletConnected;
@@ -113,9 +121,21 @@ export function BlogFrontendApp({
 
   useEffect(() => {
     if (walletConnected) return;
-    if (route.name === "home") return;
+    // Keep profile and post pages publicly readable without wallet connection.
+    if (route.name === "home" || route.name === "profile" || route.name === "post") return;
     navigate("/");
   }, [route.name, walletConnected]);
+
+  useEffect(() => {
+    if (route.name !== "write") return;
+    if (accountState === "authenticated") return;
+    setStatus("Write access requires Lens account login.");
+    if (profile?.handle) {
+      navigate(`/${encodeURIComponent(profile.handle)}`);
+      return;
+    }
+    navigate("/");
+  }, [accountState, profile, route.name]);
 
   useEffect(() => {
     if (route.name !== "home") return;
@@ -143,6 +163,36 @@ export function BlogFrontendApp({
     })().catch((error) => setStatus(`Load profile/feed failed: ${String(error)}`));
   }, [adapter, route]);
 
+  useEffect(() => {
+    if (route.name !== "post") return;
+
+    (async () => {
+      const existing = posts.find((item) => item.id === route.postId);
+      if (existing) {
+        if (!profile && existing.authorAddress) {
+          const postAuthor = await adapter.getProfileByAddress(existing.authorAddress);
+          setProfile(postAuthor);
+        }
+        setStatus("Post loaded.");
+        return;
+      }
+
+      setStatus("Loading post...");
+      const loaded = await adapter.getPostById(route.postId);
+      if (!loaded) {
+        setStatus("Post not found.");
+        return;
+      }
+
+      upsertPost(loaded);
+      if (!profile && loaded.authorAddress) {
+        const postAuthor = await adapter.getProfileByAddress(loaded.authorAddress);
+        setProfile(postAuthor);
+      }
+      setStatus("Post loaded.");
+    })().catch((error) => setStatus(`Load post failed: ${String(error)}`));
+  }, [adapter, posts, profile, route]);
+
   async function loginSelectedAccount() {
     if (!selectedAccount) return;
     const result = await adapter.loginWithAccount(selectedAccount);
@@ -160,6 +210,56 @@ export function BlogFrontendApp({
     navigate("/");
   }
 
+  function upsertPost(next: PostView) {
+    setPosts((prev) => {
+      const index = prev.findIndex((item) => item.id === next.id);
+      if (index === -1) return [next, ...prev];
+      const copied = [...prev];
+      copied[index] = next;
+      return copied;
+    });
+  }
+
+  async function publishDraft() {
+    if (accountState !== "authenticated") {
+      setStatus("Publish requires Lens account login.");
+      return;
+    }
+
+    const title = draftTitle.trim();
+    const content = draftContent.trim();
+    const tags = draftTags
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (!title || !content) {
+      setStatus("Title and content are required.");
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      setStatus("Publishing post...");
+      await adapter.publishPost({ title, content, tags });
+      setDraftTitle("");
+      setDraftContent("");
+      setDraftTags("");
+
+      if (profile?.address) {
+        const feed = await adapter.getPostsByAuthor(profile.address);
+        setPosts(feed);
+      }
+
+      setStatus("Post published.");
+      if (activeHandle) navigate(`/${encodeURIComponent(activeHandle)}`);
+    } catch (error) {
+      setStatus(`Publish failed: ${String(error)}`);
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
   const filtered = useMemo(() => {
     const key = query.trim().toLowerCase();
     return posts.filter((p) => !key || `${p.title} ${p.excerpt} ${p.content}`.toLowerCase().includes(key));
@@ -168,10 +268,20 @@ export function BlogFrontendApp({
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const pagePosts = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const activePost = route.name === "post" ? posts.find((item) => item.id === route.postId) || null : null;
+  const isAuthenticated = accountState === "authenticated";
+  const isOwnerView =
+    isAuthenticated &&
+    !!activeHandle &&
+    !!profile?.handle &&
+    normalizeHandle(activeHandle) === normalizeHandle(profile.handle);
 
   const ctx: ThemeRenderContext = {
     route,
     accountState,
+    isAuthenticated,
+    isOwnerView,
+    activeHandle,
     connectWalletNode,
     walletAddress,
     status: walletConnectionStatus && walletConnectionStatus !== "connected" ? `${status} (${walletConnectionStatus})` : status,
@@ -187,10 +297,19 @@ export function BlogFrontendApp({
       setPage(1);
     },
     pagePosts,
+    activePost,
     currentPage,
     pageCount,
     toPrevPage: () => setPage((v) => Math.max(1, v - 1)),
     toNextPage: () => setPage((v) => Math.min(pageCount, v + 1)),
+    draftTitle,
+    setDraftTitle,
+    draftContent,
+    setDraftContent,
+    draftTags,
+    setDraftTags,
+    isPublishing,
+    publishDraft: () => void publishDraft(),
     navigate,
     shortAddress,
     identiconDataUri,

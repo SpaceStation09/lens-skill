@@ -32,6 +32,7 @@ export type LensSdkOps = {
   fetchProfileByHandle(handle: string): Promise<LensProfile>;
   fetchProfileByAddress(address: string): Promise<LensProfile>;
   fetchPostsByAuthor(authorAddress: string): Promise<LensPost[]>;
+  fetchPostById(postId: string): Promise<LensPost | null>;
   publishArticle(params: {
     sessionClient: unknown;
     walletClient: WalletClient;
@@ -117,6 +118,11 @@ export function createLensAdapter(
     async getPostsByAuthor(authorAddress: string): Promise<PostView[]> {
       const posts = await ops.fetchPostsByAuthor(authorAddress);
       return posts.map(toPostView);
+    },
+
+    async getPostById(postId: string): Promise<PostView | null> {
+      const post = await ops.fetchPostById(postId);
+      return post ? toPostView(post) : null;
     },
 
     async publishPost(input: PublishInput): Promise<void> {
