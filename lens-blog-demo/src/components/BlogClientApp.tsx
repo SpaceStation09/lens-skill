@@ -1,37 +1,20 @@
 "use client";
 
 import { useMemo } from "react";
-import { useModal } from "connectkit";
+import { ConnectKitButton } from "connectkit";
 import { useAccount, useWalletClient } from "wagmi";
 import { createLensAdapter } from "@lens-blog/adapter-lens";
 import { BlogFrontendApp } from "@lens-blog/core";
 import { defaultTheme } from "@lens-blog/theme-default";
 import {
   fetchAuthorPosts,
+  fetchPostById,
   fetchProfileByAddress,
   fetchProfileByHandle,
   fetchWalletAccounts,
   loginAsAccountOwner,
   publishArticle,
 } from "../lib/lens";
-
-function WalletActionButton() {
-  const { setOpen } = useModal();
-  const { address, status } = useAccount();
-
-  let label = "Connect Wallet";
-  if (status === "connecting" || status === "reconnecting") {
-    label = "Connecting...";
-  } else if (status === "connected" && address) {
-    label = `${address.slice(0, 6)}...${address.slice(-4)}`;
-  }
-
-  return (
-    <button className="ghost" onClick={() => setOpen(true)}>
-      {label}
-    </button>
-  );
-}
 
 export function BlogClientApp() {
   const { address, isConnected, status } = useAccount();
@@ -47,6 +30,7 @@ export function BlogClientApp() {
         fetchProfileByHandle,
         fetchProfileByAddress,
         fetchPostsByAuthor: fetchAuthorPosts,
+        fetchPostById,
         publishArticle,
       }),
     [walletClient]
@@ -59,7 +43,7 @@ export function BlogClientApp() {
       walletAddress={address}
       isWalletConnected={isConnected}
       walletConnectionStatus={status}
-      connectWalletNode={<WalletActionButton />}
+      connectWalletNode={<ConnectKitButton />}
     />
   );
 }

@@ -4,13 +4,14 @@ import {
   createAccountWithUsername,
   fetchAccount,
   fetchAccountsBulk,
+  fetchPost,
   fetchPosts,
   post,
 } from "@lens-protocol/client/actions";
 import { handleOperationWith, signMessageWith } from "@lens-protocol/client/viem";
 import { account, article } from "@lens-protocol/metadata";
 import { PageSize } from "@lens-protocol/graphql";
-import { evmAddress, uri } from "@lens-protocol/types";
+import { evmAddress, postId, uri } from "@lens-protocol/types";
 import type { WalletClient } from "viem";
 import { getLensRuntimeConfig } from "../config/lens";
 
@@ -183,6 +184,28 @@ export async function fetchAuthorPosts(authorAddress: string) {
     authorAddress: item.author?.address,
     author: item.author?.address,
   }));
+}
+
+export async function fetchPostById(postIdentifier: string) {
+  const result = await fetchPost(publicClient as any, {
+    post: postId(postIdentifier as any),
+  } as any);
+
+  const item: any = unwrap(result as any, "Fetch post failed");
+  if (!item) return null;
+
+  return {
+    id: item.id,
+    createdAt: item.createdAt,
+    title: item.metadata?.title || "(untitled)",
+    content: item.metadata?.content || "",
+    tags: Array.isArray(item.metadata?.tags)
+      ? item.metadata.tags.filter((tag: unknown) => typeof tag === "string")
+      : [],
+    contentUri: item.contentUri,
+    authorAddress: item.author?.address,
+    author: item.author?.address,
+  };
 }
 
 export type LensProfile = {
