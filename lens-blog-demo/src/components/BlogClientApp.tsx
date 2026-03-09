@@ -5,6 +5,7 @@ import { ConnectKitButton } from "connectkit";
 import { useAccount, useWalletClient } from "wagmi";
 import { createLensAdapter } from "@lens-blog/adapter-lens";
 import { BlogFrontendApp } from "@lens-blog/core";
+import type { RouteState } from "@lens-blog/core";
 import { defaultTheme } from "@lens-blog/theme-default";
 import { neoTheme } from "@lens-blog/theme-neo";
 import {
@@ -19,7 +20,7 @@ import {
 
 type ThemeId = "default" | "neo";
 
-export function BlogClientApp() {
+export function BlogClientApp({ initialRoute }: { initialRoute: RouteState }) {
   const { address, isConnected, status } = useAccount();
   const { data: walletClient } = useWalletClient();
   const configuredTheme: ThemeId = process.env.NEXT_PUBLIC_BLOG_THEME === "neo" ? "neo" : "default";
@@ -45,6 +46,7 @@ export function BlogClientApp() {
     <BlogFrontendApp
       adapter={adapter}
       theme={activeTheme}
+      initialRoute={initialRoute}
       walletAddress={address}
       isWalletConnected={isConnected}
       walletConnectionStatus={status}

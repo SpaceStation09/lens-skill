@@ -6,6 +6,7 @@ import type { BlogTheme, RouteState, ThemeRenderContext } from "./theme/types";
 type Props = {
   adapter: LensBlogAdapter;
   theme: BlogTheme;
+  initialRoute?: RouteState;
   walletAddress?: string;
   isWalletConnected: boolean;
   walletConnectionStatus?: "connected" | "connecting" | "reconnecting" | "disconnected";
@@ -70,12 +71,13 @@ function identiconDataUri(address: string): string {
 export function BlogFrontendApp({
   adapter,
   theme,
+  initialRoute,
   walletAddress,
   isWalletConnected,
   walletConnectionStatus,
   connectWalletNode,
 }: Props) {
-  const [route, setRoute] = useState<RouteState>(() => parseRoute(getCurrentPathname()));
+  const [route, setRoute] = useState<RouteState>(initialRoute || { name: "home" });
   const [accountState, setAccountState] = useState<AccountState>("disconnected");
   const [accounts, setAccounts] = useState<WalletAccountOption[]>([]);
   const [selectedAccount, setSelectedAccount] = useState("");
@@ -101,7 +103,8 @@ export function BlogFrontendApp({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const onPopState = () => setRoute(parseRoute(window.location.pathname));
+    setRoute(parseRoute(getCurrentPathname()));
+    const onPopState = () => setRoute(parseRoute(getCurrentPathname()));
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
