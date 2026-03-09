@@ -30,29 +30,29 @@ lens-skills/
 - `packages/lens-blog-core`: 前端壳层和类型契约（本地包）
 - `packages/lens-blog-adapter-lens`: Lens 数据适配器（本地包）
 - `packages/lens-blog-theme-default`: 默认主题实现（本地包）
-- `lens-blog-demo`: React + TypeScript + Lens SDK 的最小可运行示例
+- `lens-blog-demo`: Next.js + TypeScript + Lens SDK 的最小可运行示例
 
 ## 快速开始（运行 demo）
 
 ```bash
 cd ./lens-blog-demo
-cp .env.example .env
+cp .env.example .env.local
 npm install
 npm run dev
 ```
 
-## 环境变量（`lens-blog-demo/.env`）
+## 环境变量（`lens-blog-demo/.env.local`）
 
 ```env
-VITE_LENS_NETWORK=testnet
-VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-# VITE_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
+NEXT_PUBLIC_LENS_NETWORK=testnet
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+# NEXT_PUBLIC_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
 ```
 
-- 运行 demo 时，`VITE_WALLETCONNECT_PROJECT_ID` 当前阶段建议视为必填
-- `VITE_LENS_NETWORK`: 可选，`testnet` 或 `mainnet`
-- `VITE_WALLETCONNECT_PROJECT_ID`: WalletConnect Cloud 项目 ID（当前阶段必填）
-- `VITE_LENS_APP_ADDRESS`: 可选，覆盖默认 App 地址
+- 运行 demo 时，`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 当前阶段建议视为必填
+- `NEXT_PUBLIC_LENS_NETWORK`: 可选，`testnet` 或 `mainnet`
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`: WalletConnect Cloud 项目 ID（当前阶段必填）
+- `NEXT_PUBLIC_LENS_APP_ADDRESS`: 可选，覆盖默认 App 地址
 
 ## 技能使用方式
 
@@ -63,7 +63,7 @@ VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 
 ## 发布到 GitHub 前建议
 
-1. 确认 `.env` 不会提交（已在 `.gitignore` 中忽略）
+1. 确认 `.env.local` 不会提交（已在 `.gitignore` 中忽略）
 2. 本地构建检查：
    - `cd lens-blog-demo && npm run build`
 3. 提交前检查变更：

@@ -138,7 +138,7 @@ const result = await fetchAccountsBulk(publicClient, {
 });
 ```
 
-## 10) Wagmi 配置（Vite）
+## 10) Wagmi 配置（Next.js）
 
 ```ts
 import { chains } from "@lens-chain/sdk/viem";
@@ -153,7 +153,7 @@ const config = createConfig(
       [chains.mainnet.id]: http(chains.mainnet.rpcUrls.default.http[0]),
       [chains.testnet.id]: http(chains.testnet.rpcUrls.default.http[0]),
     },
-    walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
+    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
   })
 );
 ```

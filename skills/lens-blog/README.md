@@ -1,6 +1,6 @@
 # lens-blog Agent Skill
 
-本 skill 用于指导 Cursor Agent 使用 Lens Protocol SDK 搭建基于 Lens 的个人博客系统。
+本 skill 用于指导 Codex/Agent 使用 Lens Protocol SDK 搭建基于 Lens 的个人博客系统。
 
 ## 使用场景
 

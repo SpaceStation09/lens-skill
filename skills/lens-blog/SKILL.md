@@ -11,7 +11,7 @@ description: Guides agents to build a personal blog system using Lens Protocol S
 
 1. 默认网络固定为 `testnet`。
 2. 默认 `app address` 使用对应网络的 **Lens global app address**（不是用户手填）。
-3. 当前阶段 `VITE_WALLETCONNECT_PROJECT_ID` 视为必填（WalletConnect 类钱包连接依赖该值）。
+3. 当前阶段 `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 视为必填（WalletConnect 类钱包连接依赖该值）。
 4. 其余 Lens 环境变量可选覆盖，不应成为运行前置条件。
 
 ## 版本要求（高优先级）
@@ -48,8 +48,8 @@ type LensRuntimeConfig = {
 
 并在同一文件中提供：
 
-1. `resolveLensNetwork()`：默认返回 `testnet`，允许 `VITE_LENS_NETWORK` 覆盖。
-2. `resolveLensAppAddress(network)`：按网络返回 Lens global app address，允许 `VITE_LENS_APP_ADDRESS` 覆盖。
+1. `resolveLensNetwork()`：默认返回 `testnet`，允许 `NEXT_PUBLIC_LENS_NETWORK` 覆盖。
+2. `resolveLensAppAddress(network)`：按网络返回 Lens global app address，允许 `NEXT_PUBLIC_LENS_APP_ADDRESS` 覆盖。
 3. `getLensRuntimeConfig()`：统一输出运行时配置，业务代码只依赖这个入口。
 
 约束：
@@ -131,16 +131,16 @@ const authenticated = await client.login({
 推荐保留以下变量：
 
 ```env
-VITE_LENS_NETWORK=testnet
-VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-VITE_LENS_APP_ADDRESS=0x...
+NEXT_PUBLIC_LENS_NETWORK=testnet
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+NEXT_PUBLIC_LENS_APP_ADDRESS=0x...
 ```
 
 规则：
 
-1. 缺失 `VITE_LENS_NETWORK` 时必须默认 `testnet`。
-2. `VITE_WALLETCONNECT_PROJECT_ID` 当前阶段必须提供（否则 WalletConnect 连接不稳定或失败）。
-3. 缺失 `VITE_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
+1. 缺失 `NEXT_PUBLIC_LENS_NETWORK` 时必须默认 `testnet`。
+2. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 当前阶段必须提供（否则 WalletConnect 连接不稳定或失败）。
+3. 缺失 `NEXT_PUBLIC_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
 
 ## 查询文章
 

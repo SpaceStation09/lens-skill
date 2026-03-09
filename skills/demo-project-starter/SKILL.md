@@ -27,7 +27,7 @@ Deliver a runnable demo with:
 
 - Prefer existing repo stack and conventions if present.
 - If no constraints are given:
-  - Web UI demo: `Vite + React + TypeScript`
+  - Web UI demo: `Next.js (App Router) + React + TypeScript`
   - API demo: `Node.js + Fastify + TypeScript`
   - Script/automation demo: `Python 3` with minimal dependencies
 - Avoid heavy infra (k8s, microservices, complex CI) unless explicitly requested.

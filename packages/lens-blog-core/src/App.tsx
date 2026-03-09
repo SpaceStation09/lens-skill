@@ -14,6 +14,11 @@ type Props = {
 
 const PAGE_SIZE = 6;
 
+function getCurrentPathname(): string {
+  if (typeof window === "undefined") return "/";
+  return window.location.pathname;
+}
+
 function parseRoute(pathname: string): RouteState {
   const clean = pathname.replace(/\/+$/, "") || "/";
   if (clean === "/") return { name: "home" };
@@ -66,7 +71,7 @@ export function BlogFrontendApp({
   walletConnectionStatus,
   connectWalletNode,
 }: Props) {
-  const [route, setRoute] = useState<RouteState>(() => parseRoute(window.location.pathname));
+  const [route, setRoute] = useState<RouteState>(() => parseRoute(getCurrentPathname()));
   const [accountState, setAccountState] = useState<AccountState>("disconnected");
   const [accounts, setAccounts] = useState<WalletAccountOption[]>([]);
   const [selectedAccount, setSelectedAccount] = useState("");
@@ -80,12 +85,14 @@ export function BlogFrontendApp({
   const walletConnected = isWalletConnected;
 
   function navigate(path: string) {
+    if (typeof window === "undefined") return;
     if (window.location.pathname === path) return;
     window.history.pushState({}, "", path);
     setRoute(parseRoute(path));
   }
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const onPopState = () => setRoute(parseRoute(window.location.pathname));
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);

@@ -11,7 +11,7 @@
 
 1. 组合灵活，适合 blog 内容型页面
 2. 主题 token 易管理，便于长期维护
-3. 和 React/Vite/Next 生态兼容性好
+3. 和 React/Next 生态兼容性好
 
 ## 复用优先规则
 
@@ -51,9 +51,9 @@
 
 ```txt
 src/
+  app/
   components/blog/
   components/ui/
-  pages/
   styles/
   lib/
 ```

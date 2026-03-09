@@ -1,26 +1,30 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
-      "react": ["./node_modules/react"],
-      "react/jsx-runtime": ["./node_modules/react/jsx-runtime"],
-      "react-dom": ["./node_modules/react-dom"],
       "@lens-blog/core": ["../packages/lens-blog-core/src/index.ts"],
       "@lens-blog/adapter-lens": ["../packages/lens-blog-adapter-lens/src/index.ts"],
-      "@lens-blog/theme-default": ["../packages/lens-blog-theme-default/src/index.tsx"]
-    },
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true
+      "@lens-blog/theme-default": ["../packages/lens-blog-theme-default/src/index.tsx"],
+      "@lens-blog/theme-default/styles.css": ["../packages/lens-blog-theme-default/src/styles.css"],
+      "react": ["./node_modules/@types/react/index.d.ts"],
+      "react-dom": ["./node_modules/@types/react-dom/index.d.ts"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime.d.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

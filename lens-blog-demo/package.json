@@ -1,31 +1,32 @@
 {
   "name": "lens-blog-demo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
+    "@lens-blog/adapter-lens": "file:../packages/lens-blog-adapter-lens",
+    "@lens-blog/core": "file:../packages/lens-blog-core",
+    "@lens-blog/theme-default": "file:../packages/lens-blog-theme-default",
     "@lens-chain/sdk": "^1.0.3",
     "@lens-chain/storage-client": "^1.0.6",
     "@lens-protocol/client": "0.0.0-canary-20250820102520",
     "@lens-protocol/metadata": "^2.1.0",
     "@tanstack/react-query": "^5.80.0",
     "connectkit": "^1.9.1",
+    "next": "^14.2.32",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "valtio": "^2.3.1",
     "viem": "^2.30.0",
     "wagmi": "^2.15.4"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8"
+    "typescript": "^5.6.2"
   }
 }
