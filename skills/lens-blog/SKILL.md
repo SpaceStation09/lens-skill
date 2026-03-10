@@ -1,205 +1,224 @@
 ---
 name: lens-blog
-description: Guides agents to build a personal blog system using Lens Protocol SDK. Use when the user wants to create a Lens-based blog, publish articles on Lens, fetch blog posts from Lens feeds, or integrate Lens Protocol for decentralized blogging.
+description: 指导 agent 将 Lens Protocol 的数据流接入博客应用。适用于用户需要 Lens 账号登录、文章发布/拉取、Lens 运行时配置，或为博客前端实现 Lens adapter 的场景。
 ---
 
-# 使用 Lens SDK 搭建个人博客系统
+# Lens Blog
 
-本 skill 指导 agent 使用 Lens Protocol 构建个人博客，覆盖最小可用主流程：连接钱包、登录、发布文章、按作者查询文章。
+本 skill 用于处理 Lens 相关的集成工作。它不定义博客前端 runtime 或 theme 架构；它只定义应用应如何读写 Lens 数据，以及账户 / session 流程应如何运作。
 
-## 默认策略（必须遵守）
+## 适用范围
 
-1. 默认网络固定为 `testnet`。
-2. 默认 `app address` 使用对应网络的 **Lens global app address**（不是用户手填）。
-3. 当前阶段 `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 视为必填（WalletConnect 类钱包连接依赖该值）。
-4. 其余 Lens 环境变量可选覆盖，不应成为运行前置条件。
-5. 本 skill 不负责 theme 设计与开发；仅允许接入“已存在的 theme 包”。
+本 skill 负责：
 
-## 版本要求（高优先级）
+1. Lens 运行时配置和 SDK 版本约束
+2. 钱包到账户的 Lens account 发现与登录
+3. 向 Lens 发布文章
+4. 从 Lens 拉取 profile 和 posts
+5. 定义博客 adapter 在 Lens 一侧应承担的职责
 
-必须优先使用 `@lens-protocol/client` canary 代际（支持 `PublicClient`、`@lens-protocol/client/actions`）。
+本 skill 不负责：
 
-推荐依赖（已验证可安装）：
+1. `BlogFrontendApp` 的 runtime 设计
+2. `ThemeRenderContext`
+3. Theme 开发或页面布局设计
+4. Lens 集成点之外的 Next.js 宿主结构
 
-```bash
-npm install @lens-protocol/client@0.0.0-canary-20250820102520
-npm install @lens-protocol/metadata@^2.1.0 @lens-chain/storage-client@^1.0.6 @lens-chain/sdk@^1.0.3
-npm install wagmi viem connectkit @tanstack/react-query zod
-```
+如果任务涉及前端 runtime、路由/视角规则或 theme 边界，也应同时使用 `blog-frontend-governor`。
 
-说明：
-- `evmAddress`、`uri` 来自 `@lens-protocol/types`，不是 `@lens-protocol/client`。
-- `StorageClient.create()` 可直接使用默认环境。
+## 必读内容
 
-## Lens 概念封装（必须统一）
+开始实现前先阅读：
 
-在生成项目时，必须先封装一个集中配置层（例如 `src/config/lens.ts`），不要把 Lens 专有概念散落在页面组件里。
+1. [reference.md](reference.md)，用于查看 Lens SDK 用法和兼容性约束
+2. [references/lens-adapter-reference.md](references/lens-adapter-reference.md)，用于查看 Lens adapter 的推荐组织方式
 
-建议封装如下：
+## 核心规则
+
+1. 默认 Lens 网络为 `testnet`。
+2. 除非用户明确覆盖，否则默认 `app address` 使用当前网络对应的 Lens global app address。
+3. 当前阶段 `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 是必填项。
+4. Lens SDK 细节必须与 render 层隔离。
+5. 前端 runtime 必须通过本地 adapter 模块消费 Lens 数据，不能在 page / theme 组件里直接调用 Lens SDK。
+
+## Runtime Config Contract
+
+实现一个集中配置模块，例如 `src/config/lens.ts`。
+
+它必须定义：
 
 ```ts
 type LensNetwork = "testnet" | "mainnet";
 
 type LensRuntimeConfig = {
-  network: LensNetwork; // default: testnet
-  appAddress: `0x${string}`; // default: Lens global app address by network
-  walletConnectProjectId: string; // required in current stage
+  network: LensNetwork;
+  appAddress: `0x${string}`;
+  walletConnectProjectId: string;
 };
 ```
 
-并在同一文件中提供：
+它必须提供：
 
-1. `resolveLensNetwork()`：默认返回 `testnet`，允许 `NEXT_PUBLIC_LENS_NETWORK` 覆盖。
-2. `resolveLensAppAddress(network)`：按网络返回 Lens global app address，允许 `NEXT_PUBLIC_LENS_APP_ADDRESS` 覆盖。
-3. `getLensRuntimeConfig()`：统一输出运行时配置，业务代码只依赖这个入口。
+1. `resolveLensNetwork()`
+2. `resolveLensAppAddress(network)`
+3. `getLensRuntimeConfig()`
 
-约束：
+规则：
 
-1. `App Address`：Lens 应用身份（用于 `onboardingUser.app` / `accountOwner.app`）。
-2. `Owner Address`：当前签名钱包地址。
-3. `Account Address`：Lens 账户地址（可由 `fetchAccountsBulk` 自动发现）。
-4. 不允许在多个页面或 hooks 中重复实现上述映射逻辑。
+1. 缺失 `NEXT_PUBLIC_LENS_NETWORK` 时必须回退到 `testnet`。
+2. 缺失 `NEXT_PUBLIC_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
+3. 缺失 `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 时必须视为 setup 阻塞项，不能静默忽略。
+4. 不要把 Lens env 解析分散到多个文件里。
 
-## 快速流程
+## 推荐文件布局
 
-1. 初始化只读客户端 `PublicClient.create({ environment: testnet/mainnet })`。
-2. 连接钱包并用 `client.login(...)` 获得 `SessionClient`。
-3. 用 `article()` 生成 metadata，`storageClient.uploadAsJson()` 得到 `lens://...`。
-4. 调用 `post(sessionClient, { contentUri: uri(...) })` 发布。
-5. 调用 `fetchPosts(publicClient, { filter: { authors: [...] } })` 拉取文章。
+在采用推荐目录结构时，Lens 相关代码应优先落在这些位置：
 
-## 页面权限与视角（必须）
-
-1. `/:handle`、`/p/:postId` 必须允许未登录用户访问（公开可读）。
-2. `/write` 必须要求 Lens account 已登录，且当前登录账号是该 profile owner。
-3. UI 必须区分 `Owner View` 和 `Viewer View`：
-   - `Owner View`：显示写作能力（如 `Write`、发布等）。
-   - `Viewer View`：隐藏写作入口，不允许进入写作流程。
-4. 账户相关按钮（Connect Wallet / Login Lens / Switch Lens Account）应放在全局导航区域，不应放在 profile 信息卡内部。
-
-## 创建博文流程
-
-### Step 1: 创建 Article Metadata
-
-```ts
-import { article } from "@lens-protocol/metadata";
-
-const metadata = article({
-  title: "我的第一篇博客",
-  content: "## 引言\n这是正文内容\n\n## 结论\n感谢阅读",
-  tags: ["web3", "lens", "blog"],
-  locale: "zh-CN",
-});
+```txt
+src/
+  blog/
+    config/
+      lens.ts
+    adapters/
+      lens/
+        sdk.ts
+        mapper.ts
+        session.ts
+        index.ts
 ```
 
-### Step 2: 上传 metadata 获取 content URI
+规则：
 
-```ts
-import { StorageClient } from "@lens-chain/storage-client";
+1. `sdk.ts` 直接与 Lens SDK 交互。
+2. `mapper.ts` 负责 `Lens -> ViewModel` 的转换和 excerpt / fallback 处理。
+3. `session.ts` 负责登录后 session 保存、校验和清理。
+4. `index.ts` 负责向 frontend runtime 暴露统一 adapter 接口。
+5. 如果仓库已有等价结构，可以复用，但职责必须保持一致。
 
-const storageClient = StorageClient.create();
-const uploaded = await storageClient.uploadAsJson(metadata);
-// uploaded.uri -> lens://...
-```
+## Account 与 Session 流程
 
-### Step 3: 发布 Post
+支持的流程是：
 
-```ts
-import { post } from "@lens-protocol/client/actions";
-import { uri } from "@lens-protocol/types";
+1. 连接钱包
+2. 发现该钱包拥有的 Lens accounts
+3. 选择一个 account
+4. 以该 account owner 身份登录
+5. 用已认证的 session 执行发布
 
-const result = await post(sessionClient, {
-  contentUri: uri(uploaded.uri),
-}).andThen(handleOperationWith(walletClient));
-```
+规则：
 
-## 账户登录与分支
+1. 钱包连接和 Lens account 登录是两个独立步骤。
+2. 发布前必须先完成 Lens account 选择。
+3. Adapter 必须保留足够的 session 状态，以支持登录后发布。
+4. 钱包断开或显式登出后，session 状态必须被清理。
 
-### 分支 1：已有账户（Account Owner）
+## Adapter 职责
 
-```ts
-const appAddress = resolveLensAppAddress(network); // 默认 Lens global app address，可选 env 覆盖
+本 skill 假设生成后的项目会包含一个本地 Lens adapter 实现。Adapter 不能只是字段映射器。
 
-const authenticated = await client.login({
-  accountOwner: {
-    app: evmAddress(appAddress),
-    owner: evmAddress("<wallet-address>"),
-    account: evmAddress("<lens-account-address>"),
-  },
-  signMessage: signMessageWith(walletClient),
-});
-```
+它必须：
 
-### 分支 2：无账户（Onboarding User -> 创建账户）
+1. 为钱包发现可用 accounts
+2. 执行 Lens account 登录
+3. 拉取 profile 和 post 数据
+4. 发布 posts
+5. 将 Lens SDK 响应归一化为前端使用的 view models
+6. 屏蔽 SDK 特有的 result wrapper 和不稳定响应结构，不让它们泄漏到 frontend runtime
+7. 为可选字段提供兜底行为
 
-- 先 `client.login({ onboardingUser: { app: resolveLensAppAddress(network), wallet }, signMessage })`
-- 再 `createAccountWithUsername(...)`
-- 交易后 `fetchAccount(...)` + `sessionClient.switchAccount(...)`
+它不能：
 
-## 环境变量策略（低优先）
+1. 渲染 UI
+2. 在 page / theme 组件里直接读取环境变量
+3. 向 frontend runtime 暴露原始 Lens SDK 结果对象
+4. 让 theme 代码理解 Lens SDK 类型
 
-推荐保留以下变量：
+## 发布流程
+
+使用如下顺序：
+
+1. 用 `article(...)` 构建文章 metadata
+2. 通过 `StorageClient` 上传 metadata
+3. 用 `post(sessionClient, { contentUri })` 发布
+
+规则：
+
+1. 发布必须依赖已认证的 Lens session。
+2. tags 应通过 metadata 传递，并在可能时保留下来。
+3. 发布失败时，adapter 应抛出普通应用层错误，而不是原始 SDK 包装结果。
+
+## 落地顺序
+
+当 agent 用本 skill 真正为项目补齐 Lens 能力时，按这个顺序实现：
+
+1. 先创建 `src/blog/config/lens.ts` 并完成运行时配置解析。
+2. 再创建 `src/blog/adapters/lens/sdk.ts`，封装 `PublicClient`、storage client 和核心 actions。
+3. 再实现 `mapper.ts`，把 Lens 数据映射成 frontend 可消费的 view models。
+4. 再实现 `session.ts`，保证登录后 publish 能工作，并支持 reset / clear。
+5. 最后在 `index.ts` 中组装统一 adapter 接口，交给 frontend runtime 使用。
+
+不要先在页面或 theme 中直接写 Lens SDK 调用，再回头补 adapter。
+
+## 拉取流程
+
+需要支持以下 Lens 数据读取：
+
+1. 钱包拥有的 accounts
+2. 按 handle 读取 profile
+3. 按 address 读取 profile
+4. 按作者读取 posts
+5. 按 id 读取 post
+
+规则：
+
+1. adapter 输出的 handle 必须去掉 `@` 前缀并归一化。
+2. 对可选 avatar / stats 字段要转换成前端可安全消费的形态。
+3. post excerpt 应在 adapter 或 mapper 层生成，而不是在 theme 中生成。
+
+## 环境变量
+
+推荐保留的变量：
 
 ```env
 NEXT_PUBLIC_LENS_NETWORK=testnet
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-NEXT_PUBLIC_BLOG_THEME=default
 NEXT_PUBLIC_LENS_APP_ADDRESS=0x...
 ```
 
 规则：
 
-1. 缺失 `NEXT_PUBLIC_LENS_NETWORK` 时必须默认 `testnet`。
-2. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` 当前阶段必须提供（否则 WalletConnect 连接不稳定或失败）。
-3. 缺失 `NEXT_PUBLIC_LENS_APP_ADDRESS` 时必须回退到网络对应的 Lens global app address。
-4. `NEXT_PUBLIC_BLOG_THEME` 仅用于启动前主题选择；本 skill 不实现运行时主题切换 UI。
+1. 保持 env 面尽量小。
+2. 只通过 `NEXT_PUBLIC_*` 暴露浏览器端确实需要的变量。
+3. 没有明确运行时需求时，不要增加额外 Lens env 变量。
 
-## Theme 边界（必须）
+## 已知兼容性规则
 
-1. 用户可指定已有主题包（例如 `@lens-blog/theme-default`、`@lens-blog/theme-neo`）。
-2. agent 只做主题接入（依赖、导入、配置），不在本 skill 内开发新主题。
-3. 若用户要求“做一个新主题”，应转交独立 theme 开发 skill（例如后续的 `theme-develop`）。
+1. 优先使用与 `PublicClient` 和 `@lens-protocol/client/actions` 兼容的 `@lens-protocol/client` canary 代际。
+2. `evmAddress` 和 `uri` 来自 `@lens-protocol/types`。
+3. 除非任务明确要求自定义 storage 行为，否则 `StorageClient.create()` 可直接使用默认环境。
+4. 不要使用已知在不同版本间容易失效的不稳定导入路径。
 
-## 查询文章
+## 交付要求
 
-```ts
-import { fetchPosts } from "@lens-protocol/client/actions";
-import { evmAddress } from "@lens-protocol/types";
+应用本 skill 后，项目里至少应留下：
 
-const posts = await fetchPosts(publicClient, {
-  filter: { authors: [evmAddress("0x...")] },
-  pageSize: 20,
-});
-```
-
-## 检查钱包已有账户
-
-```ts
-import { fetchAccountsBulk } from "@lens-protocol/client/actions";
-import { evmAddress } from "@lens-protocol/types";
-
-const result = await fetchAccountsBulk(publicClient, {
-  addresses: [evmAddress("0x...")],
-});
-```
-
-## 已知兼容性坑
-
-1. `@lens-protocol/client` 稳定版 `2.x` API 与本 skill 示例不兼容，优先 canary。
-2. Node 建议使用 `20` 或 `22`；更高版本可能出现 engine warning。
-3. 不要使用 `import "connectkit/build/index.css"`（该路径在部分版本未导出）。
-4. 若构建报 `valtio/vanilla` 缺失，可安装 `valtio`。
+1. 一个集中式 Lens config 模块
+2. 一个本地 Lens 集成模块，或一小组职责清晰的集成模块
+3. 一个可被 frontend runtime 消费的 adapter 边界
+4. 可在本地验证的 Lens 登录、拉取、发布路径
 
 ## 最小验收清单
 
-1. `npm install` 成功。
-2. `npm run build` 成功。
-3. 页面可连接钱包。
-4. 可完成一次登录并提交发布请求。
-5. 可按作者地址拉取文章列表。
+1. 钱包连接后，应用能发现该钱包下的 Lens accounts。
+2. 用户能选择一个 Lens account 完成登录。
+3. profile 拉取可用，且 handle / avatar / stats 已归一化。
+4. post 列表拉取可用，且 excerpt 不在 theme 中生成。
+5. publish 流程可跑通，且未登录时不能发布。
+6. 切换账号或钱包断开后，adapter 内 session 会被清理。
 
-## 参考资源
+## 非目标
 
-- 完整 API 与类型说明：[reference.md](reference.md)
-- 官方文档：https://docs.lens.xyz
-- Metadata 参考：https://lens-protocol.github.io/metadata/
+1. Theme 创建
+2. 视觉重设计
+3. 通用 CMS 工作流
+4. 多协议博客抽象

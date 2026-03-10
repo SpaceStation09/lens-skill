@@ -1,4 +1,4 @@
-import type { BlogTheme, ThemeRenderContext } from "@lens-blog/core";
+import type { BlogTheme, ThemeRenderContext } from "../../core/contracts/theme";
 
 function renderTopBar(ctx: ThemeRenderContext) {
   return (
@@ -86,9 +86,7 @@ export const defaultTheme: BlogTheme = {
               <select value={ctx.selectedAccount} onChange={(e) => ctx.setSelectedAccount(e.target.value)}>
                 {ctx.accounts.map((item) => (
                   <option key={item.address} value={item.address}>
-                    {(item.handle ? `@${item.handle}` : "No handle") +
-                      " · " +
-                      ctx.shortAddress(item.address)}
+                    {(item.handle ? `@${item.handle}` : "No handle") + " · " + ctx.shortAddress(item.address)}
                   </option>
                 ))}
               </select>

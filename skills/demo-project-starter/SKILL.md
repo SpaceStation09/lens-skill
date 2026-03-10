@@ -1,62 +1,62 @@
 ---
 name: demo-project-starter
-description: Helps build a runnable demo project quickly with minimal scope and clear acceptance checks. Use when the user asks to create a prototype, POC, or demo app in the current workspace.
+description: 帮助快速搭建一个可运行的 demo 项目，范围尽量小，并带有清晰的验收检查。适用于用户希望在当前工作区创建原型、POC 或 demo 应用的场景。
 ---
 
 # Demo Project Starter
 
-Use this skill when the user wants to quickly build a working demo project in the workspace.
+当用户希望在当前工作区里快速搭建一个可运行的 demo 项目时，使用本 skill。
 
-## Goal
+## 目标
 
-Deliver a runnable demo with:
-- a narrow, testable feature scope
-- standard project scripts (`dev`, `build`, `test` when applicable)
-- a short runbook and acceptance checklist
+交付一个可运行的 demo，并满足：
+- 功能范围收敛、可测试
+- 具备标准项目脚本（`dev`、`build`、适用时的 `test`）
+- 附带简短运行说明和验收清单
 
-## Workflow
+## 工作流
 
-1. Clarify the demo target in one sentence.
-2. Choose the lightest stack that can satisfy the target.
-3. Scaffold only what is necessary for the requested demo.
-4. Implement vertical slice first (happy path end-to-end).
-5. Run lint/tests/build or the closest local validation available.
-6. Report what was created, how to run it, and known limitations.
+1. 用一句话明确 demo 目标。
+2. 选择能满足目标的最轻量技术栈。
+3. 只搭建本次 demo 真正需要的最小骨架。
+4. 优先实现一条完整纵向 happy path。
+5. 运行 lint / tests / build，或者至少运行当前环境中最接近的本地校验。
+6. 汇报创建了什么、怎么运行、有哪些已知限制。
 
-## Stack Selection Rules
+## 技术栈选择规则
 
-- Prefer existing repo stack and conventions if present.
-- If no constraints are given:
-  - Web UI demo: `Next.js (App Router) + React + TypeScript`
-  - API demo: `Node.js + Fastify + TypeScript`
-  - Script/automation demo: `Python 3` with minimal dependencies
-- Avoid heavy infra (k8s, microservices, complex CI) unless explicitly requested.
+- 如果仓库里已有明确技术栈和约定，优先复用。
+- 如果用户没有额外约束：
+  - Web UI demo：`Next.js (App Router) + React + TypeScript`
+  - API demo：`Node.js + Fastify + TypeScript`
+  - Script / automation demo：`Python 3` + 最少依赖
+- 除非用户明确要求，否则避免引入重型基础设施（如 k8s、微服务、复杂 CI）。
 
-## Implementation Rules
+## 实现规则
 
-- Keep architecture simple: 1 app, 1 clear entry point, minimal folders.
-- Use realistic fake data before adding external integrations.
-- Add environment variables only when needed and provide `.env.example`.
-- Include only essential dependencies.
-- Prefer deterministic local commands and avoid network-coupled steps unless required.
+- 架构保持简单：1 个应用、1 个清晰入口、最少目录层级。
+- 在接入真实外部系统前，优先使用足够真实的 mock 数据。
+- 只有在确有必要时才增加环境变量，并提供 `.env.example`。
+- 只引入必要依赖。
+- 优先使用确定性的本地命令，非必要不依赖网络步骤。
 
-## Required Output Checklist
+## 必要输出检查清单
 
-Before finishing, ensure:
-- Project starts locally with one command (or clearly documented two-step command).
-- Main user flow is demonstrable.
-- README includes:
-  - purpose of the demo
-  - setup commands
-  - run commands
-  - test/validation commands
-  - known limitations / next steps
+结束前确保：
+- 项目可以用一条命令启动，或者清晰说明两步启动方式。
+- 主用户流程可以演示。
+- README 至少包含：
+  - demo 目的
+  - 安装命令
+  - 运行命令
+  - 测试 / 校验命令
+  - 已知限制 / 下一步建议
 
-## Response Template
+## 输出模板
 
-When reporting completion, include:
+汇报完成情况时，至少包含：
 
-1. What was built (scope).
-2. Key files changed.
-3. Run and validation commands.
-4. Known gaps and fastest next iteration.
+1. 本次构建了什么（范围）。
+2. 关键改动文件。
+3. 运行和校验命令。
+4. 当前缺口和最快下一步。

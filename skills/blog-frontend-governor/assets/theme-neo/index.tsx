@@ -1,4 +1,4 @@
-import type { BlogTheme, ThemeRenderContext } from "@lens-blog/core";
+import type { BlogTheme, ThemeRenderContext } from "../../core/contracts/theme";
 
 function topbar(ctx: ThemeRenderContext) {
   return (
@@ -113,11 +113,7 @@ export const neoTheme: BlogTheme = {
           <section className="neo-shell neo-card">
             <label className="neo-field">
               <span>Search</span>
-              <input
-                value={ctx.query}
-                onChange={(e) => ctx.setQuery(e.target.value)}
-                placeholder="Search title/content"
-              />
+              <input value={ctx.query} onChange={(e) => ctx.setQuery(e.target.value)} placeholder="Search title/content" />
             </label>
           </section>
 

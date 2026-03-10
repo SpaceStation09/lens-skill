@@ -1,19 +1,18 @@
-import type { AccountState, PostView, ProfileView, WalletAccountOption } from "../types/contracts";
+# ThemeRenderContext
 
-export type RouteState =
-  | { name: "home" }
-  | { name: "profile"; handle: string }
-  | { name: "write" }
-  | { name: "post"; postId: string };
+theme 应消费单一的 runtime-facing context，不应从头重建业务逻辑。
 
-export type ThemeRenderContext = {
+## 最小形态
+
+```ts
+type ThemeRenderContext = {
   route: RouteState;
   accountState: AccountState;
   isAuthenticated: boolean;
   isOwnerView: boolean;
   activeHandle: string;
-  connectWalletNode?: JSX.Element;
   walletAddress?: string;
+  connectWalletNode?: JSX.Element;
   status: string;
   accounts: WalletAccountOption[];
   selectedAccount: string;
@@ -21,10 +20,10 @@ export type ThemeRenderContext = {
   loginSelectedAccount: () => void;
   resetLensAuth: () => void;
   profile: ProfileView | null;
-  query: string;
-  setQuery: (value: string) => void;
   pagePosts: PostView[];
   activePost: PostView | null;
+  query: string;
+  setQuery: (value: string) => void;
   currentPage: number;
   pageCount: number;
   toPrevPage: () => void;
@@ -41,9 +40,12 @@ export type ThemeRenderContext = {
   shortAddress: (address?: string) => string;
   identiconDataUri: (address: string) => string;
 };
+```
 
-export type BlogTheme = {
-  id: string;
-  label: string;
-  renderRoute: (ctx: ThemeRenderContext) => JSX.Element | null;
-};
+## 规则
+
+1. theme 可以调用 context 暴露出的 actions。
+2. theme 可以基于 route 或 permission state 做分支渲染。
+3. theme 不能自己发起数据拉取。
+4. theme 不能自行计算 ownership 规则。
+5. runtime 可以扩展这个结构，但没有明确迁移理由时，不应移除稳定核心字段。
