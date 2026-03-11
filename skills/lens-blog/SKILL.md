@@ -24,7 +24,7 @@ description: 指导 agent 将 Lens Protocol 的数据流接入博客应用。适
 3. Theme 开发或页面布局设计
 4. Lens 集成点之外的 Next.js 宿主结构
 
-如果任务涉及前端 runtime、路由/视角规则或 theme 边界，也应同时使用 `blog-frontend-governor`。
+如果任务涉及前端 runtime、路由/视角规则或 theme 边界，也应同时使用 `lens-blog-frontend`。
 
 ## 必读内容
 

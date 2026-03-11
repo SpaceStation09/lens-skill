@@ -1,9 +1,9 @@
 ---
-name: blog-frontend-governor
-description: 规定一个 Next.js 项目如何演化为基于 Lens 的博客前端。适用于用户需要 BlogFrontendApp、core/adapter/theme 边界、路由与权限 contract、theme 接入方式，或推荐目录结构的场景。
+name: lens-blog-frontend
+description: 用于从零搭建或重构基于 Lens 的博客前端。适用于用户希望创建 Lens blog 网站或 blog demo、实现 BlogFrontendApp、落地 core/adapter/theme 结构、接入主题源码资产、定义路由与权限 contract 的场景。通常与 demo-project-starter 和 lens-blog 一起使用。
 ---
 
-# Blog Frontend Governor
+# Lens Blog Frontend
 
 使用本 skill 将一个 Next.js 应用收敛到预期的 Lens Blog 前端架构。
 
@@ -201,7 +201,7 @@ src/
 
 1. `demo-project-starter`
 2. `lens-blog`
-3. `blog-frontend-governor`
+3. `lens-blog-frontend`
 
 改造已有项目时：
 

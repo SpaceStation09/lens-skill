@@ -5,7 +5,7 @@
 ## 当前模型
 
 1. `skills/` 负责定义架构、行为 contract、落地步骤和验收要求
-2. `skills/blog-frontend-governor/assets/` 负责提供可直接复制进目标项目的 theme 源码
+2. `skills/lens-blog-frontend/assets/` 负责提供可直接复制进目标项目的 theme 源码
 3. 生成出来的 blog 项目应由这些 skills 直接构建，不再依赖仓库内的旧参考实现目录
 
 ## Skill 职责
@@ -14,7 +14,7 @@
    负责快速起一个最小可运行项目骨架
 2. `lens-blog`
    负责 Lens 账号登录、读写流程、运行时配置和 adapter 侧约束
-3. `blog-frontend-governor`
+3. `lens-blog-frontend`
    负责 `BlogFrontendApp`、`core` / `adapter` / `theme` 边界、路由/权限 contract 和 theme 接入
 
 ## 目标项目推荐结构
@@ -49,7 +49,7 @@ src/
 
 当前可直接分发的源码资产位于：
 
-1. `skills/blog-frontend-governor/assets/theme-default`
-2. `skills/blog-frontend-governor/assets/theme-neo`
+1. `skills/lens-blog-frontend/assets/theme-default`
+2. `skills/lens-blog-frontend/assets/theme-neo`
 
 这些 assets 设计为被复制到目标项目的 `src/blog/themes/` 下，而不是被运行时继续从 skill 目录引用。

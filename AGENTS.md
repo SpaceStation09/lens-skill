@@ -6,7 +6,7 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - skill-installer: Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos). (file: $CODEX_HOME/skills/.system/skill-installer/SKILL.md)
 - demo-project-starter: Scaffold a runnable demo project quickly from a clear goal, with pragmatic stack choice, minimal architecture, setup commands, and acceptance checklist. Use when the user wants a new demo app/prototype/POC in this workspace. (file: ./skills/demo-project-starter/SKILL.md)
 - lens-blog: Guides agents to build a personal blog system using Lens Protocol SDK (wallet connection, account login, publish, fetch). Use when integrating Lens business flow in this workspace. (file: ./skills/lens-blog/SKILL.md)
-- blog-frontend-governor: Governs blog frontend architecture, contracts, and theme integration boundaries. Use when defining/improving blog frontend structure and UI constraints. (file: ./skills/blog-frontend-governor/SKILL.md)
+- lens-blog-frontend: 用于从零搭建或重构基于 Lens 的博客前端，包括 BlogFrontendApp、core/adapter/theme 结构、theme 源码资产接入、路由与权限 contract。适用于创建 Lens blog 网站或 blog demo。 (file: ./skills/lens-blog-frontend/SKILL.md)
 
 ### How to use skills
 - Discovery: The list above is the skills available in this session (name + description + file path). Skill bodies live on disk at the listed paths.
