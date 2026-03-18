@@ -3,7 +3,6 @@
 
 - skill-creator: 创建或更新 skill 的指南。 (file: $CODEX_HOME/skills/.system/skill-creator/SKILL.md)
 - skill-installer: 安装 Codex skills 的指南。 (file: $CODEX_HOME/skills/.system/skill-installer/SKILL.md)
-- demo-project-starter: 快速搭建可运行 demo 项目。 (file: ./skills/demo-project-starter/SKILL.md)
 - blog-frontend: 搭建基于 Next.js 的博客前端宿主层。 (file: ./skills/blog-frontend/SKILL.md)
 - lens-interaction: 实现 Lens 交互层（登录、读取、发布、session）。 (file: ./skills/lens-interaction/SKILL.md)
 

@@ -89,28 +89,36 @@ export type DefaultThemeProps = {
 
 function TopBar({ ctx }: DefaultThemeProps) {
   return (
-    <header className="lb-shell lb-topbar">
-      <div className="lb-brand-block">
-        <p className="lb-kicker">Lens Blog</p>
-        <h2 className="lb-brand-title">Default Theme</h2>
-      </div>
+    <>
+      <header className="lb-shell lb-topbar">
+        <div className="lb-brand-block">
+          <p className="lb-kicker">Lens Blog</p>
+          <h2 className="lb-brand-title">Default Theme</h2>
+        </div>
 
-      <div className="lb-topbar-actions">
-        {ctx.accountState === "wallet_connected_unauthed" ? (
-          <button className="lb-btn lb-btn-soft" onClick={() => ctx.navigate("/")}>
-            Login Lens
-          </button>
-        ) : null}
+        <div className="lb-topbar-actions">
+          {ctx.accountState === "wallet_connected_unauthed" ? (
+            <button className="lb-btn lb-btn-soft" onClick={() => ctx.navigate("/")}>
+              Login Lens
+            </button>
+          ) : null}
 
-        {ctx.isAuthenticated ? (
-          <button className="lb-btn lb-btn-soft" onClick={ctx.resetLensAuth}>
-            Switch Account
-          </button>
-        ) : null}
+          {ctx.isAuthenticated ? (
+            <button className="lb-btn lb-btn-soft" onClick={ctx.resetLensAuth}>
+              Switch Account
+            </button>
+          ) : null}
 
-        {ctx.connectWalletNode || null}
-      </div>
-    </header>
+          {ctx.connectWalletNode || null}
+        </div>
+      </header>
+
+      {ctx.status ? (
+        <section className="lb-shell lb-status-panel">
+          <p>{ctx.status}</p>
+        </section>
+      ) : null}
+    </>
   );
 }
 
@@ -245,7 +253,7 @@ export function DefaultTheme({ ctx }: DefaultThemeProps) {
         <TopBar ctx={ctx} />
         <section className="lb-shell lb-auth-panel">
           <p className="lb-kicker">Lens Login</p>
-          <h1>{ctx.accounts.length ? "Select Lens Account" : "Create Lens Account"}</h1>
+          <h1>{ctx.accounts.length ? "Select Or Create Lens Account" : "Create Lens Account"}</h1>
           <p className="lb-muted">Wallet: {ctx.shortAddress(ctx.walletAddress)}</p>
 
           {ctx.accounts.length ? (
@@ -264,6 +272,28 @@ export function DefaultTheme({ ctx }: DefaultThemeProps) {
               <div className="lb-actions">
                 <button className="lb-btn" disabled={!ctx.selectedAccount} onClick={ctx.loginSelectedAccount}>
                   Continue
+                </button>
+              </div>
+
+              <p className="lb-muted">Or create a new Lens account with a username below.</p>
+
+              <label className="lb-field">
+                <span>New Username</span>
+                <input
+                  value={ctx.createUsername}
+                  onChange={(e) => ctx.setCreateUsername(e.target.value)}
+                  placeholder="yourname"
+                />
+              </label>
+
+              {ctx.usernameCheckMessage ? <p className="lb-muted">{ctx.usernameCheckMessage}</p> : null}
+
+              <div className="lb-actions">
+                <button className="lb-btn lb-btn-soft" disabled={!ctx.createUsername || ctx.isCheckingUsername} onClick={ctx.canCreateUsername}>
+                  {ctx.isCheckingUsername ? "Checking..." : "Check Username"}
+                </button>
+                <button className="lb-btn" disabled={!ctx.createUsername || ctx.isCreatingAccount} onClick={ctx.createLensAccount}>
+                  {ctx.isCreatingAccount ? "Creating..." : "Create Lens Account"}
                 </button>
               </div>
             </>
@@ -298,6 +328,24 @@ export function DefaultTheme({ ctx }: DefaultThemeProps) {
   }
 
   if (ctx.route.name === "home" && ctx.isAuthenticated) {
+    if (!ctx.activeHandle) {
+      return (
+        <main className="lb-layout lb-theme-default">
+          <TopBar ctx={ctx} />
+          <section className="lb-shell lb-auth-panel">
+            <p className="lb-kicker">Lens Login</p>
+            <h1>Lens account unavailable</h1>
+            <p className="lb-muted">We could not resolve your current handle. Please switch account and try again.</p>
+            <div className="lb-actions">
+              <button className="lb-btn" onClick={ctx.resetLensAuth}>
+                Switch Account
+              </button>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     return (
       <main className="lb-layout lb-theme-default">
         <TopBar ctx={ctx} />

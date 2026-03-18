@@ -1,6 +1,6 @@
 ---
 name: blog-frontend
-description: 指导 agent 从零搭建基于 Next.js 的博客前端宿主层：保持 app 路由层简洁，将状态机与服务逻辑放入 lib，并使用 components 下的 theme-default 源码完成页面渲染。
+description: 指导 agent 从零搭建基于 Next.js 的博客前端宿主层：保持 app 路由层简洁，将状态机与服务逻辑放入 lib，并使用 components 下的 theme-default 源码完成页面渲染；支持无 Lens 账号用户在前端完成创建。
 ---
 
 # Blog Frontend
@@ -13,7 +13,7 @@ description: 指导 agent 从零搭建基于 Next.js 的博客前端宿主层：
 
 1. Next.js 宿主层路由
 2. 全局账户状态机 provider（实现在 `lib`，由 `app` 引入）
-3. landing / profile / post detail / write 四类页面行为
+3. landing / profile / post detail / write 四类页面行为（含无账号创建流程）
 4. 与 `lens-interaction` 的服务接线
 5. `theme-default` 源码资产接入
 
@@ -87,14 +87,14 @@ components/
 
 默认钱包方案固定为：
 
-1. `ConnectKit`（钱包连接 UI）
+1. `Privy`（钱包连接与认证入口）
 2. `wagmi`（钱包与连接器状态）
 3. `viem`（链与签名底层能力）
 
 规则：
 
 1. 无明确要求时，不替换为其他钱包 UI 库
-2. 钱包连接体验（钱包列表、推荐顺序、连接弹窗）由 `ConnectKit` 负责
+2. 钱包连接体验（钱包列表、登录方式、连接弹窗）由 `Privy` 负责
 3. 宿主层只消费“是否已连接 + 当前钱包地址 + 签名能力”
 
 ## 必读 references（顺序）
@@ -118,42 +118,16 @@ components/
 
 ## 最小验收
 
-1. landing 提供 connect wallet 与 Lens 登录入口
+1. landing 提供 connect wallet、Lens 登录与无账号创建入口
 2. `/:handle` 公开可读，并区分 owner / non-owner
 3. `/p/:postId` 公开可读
 4. `/write` 非 owner 不可发布，owner 可发布
 5. owner 判定以 address 为权威，不依赖 handle 文本完全匹配
 6. 会话恢复失败后状态回退与 `lens-interaction` 一致
-7. theme 不直接调用 Lens SDK
+7. 钱包已连接但无 Lens 账号时，可在前端完成 username 校验与创建
+8. 在 `/` 上登录成功、创建成功或恢复成功后，自动跳转到当前 Lens 账号的 `/:handle`
+9. theme 不直接调用 Lens SDK
 
-## 交付报告要求（双层）
+## 交付说明
 
-应用本 skill 后，agent 应输出两层交付信息：
-
-1. 对话内只输出“通用业务报告”（面向非技术用户）
-2. 技术附录写入项目文档文件，不在对话中展开细节
-
-### A. 通用业务报告（对话内）
-
-按以下结构汇报：
-
-1. 这次完成了什么（1-2 句话）
-2. 现在可以怎么用（3-5 条）
-3. 哪些场景已经覆盖（owner / non-owner、登录态、可读可写）
-4. 还没完成什么（明确列项）
-5. 下一步建议（最多 3 条）
-
-### B. 技术附录（写入文档）
-
-默认写入路径：
-
-- `docs/reports/blog-frontend-technical-report.md`
-
-技术附录至少包含：
-
-1. 路由与页面落地清单（`/`、`/:handle`、`/p/:postId`、`/write`）
-2. provider 状态机与 guard 行为摘要
-3. 与 `lens-interaction` 的接线情况
-4. 已知限制与技术风险
-
-对话中只需提示“技术附录已写入该路径”，不要展开整段技术细节。
+应用本 skill 后，agent 应按当前会话要求汇报结果；若用户未指定格式，优先简洁说明“已完成项、未完成项、风险与下一步”。

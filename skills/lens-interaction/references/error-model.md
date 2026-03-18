@@ -9,6 +9,8 @@ type LensInteractionErrorCode =
   | "UNAUTHENTICATED"
   | "USER_REJECTED_SIGNATURE"
   | "SESSION_EXPIRED"
+  | "USERNAME_TAKEN"
+  | "NAMESPACE_UNSUPPORTED_FLOW"
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "INVALID_INPUT"
@@ -27,12 +29,14 @@ type LensInteractionError = {
 ## 使用规则
 
 1. 对宿主层抛出上述统一错误，不透传 SDK 原始异常对象
-2. 缺少关键 env（如 walletconnect project id）时抛 `CONFIG_ERROR`
+2. 缺少关键配置（例如无法初始化 Lens 配置或宿主层钱包配置缺失）时抛 `CONFIG_ERROR`
 3. 查询缺失资源时：
    - 若接口约定返回 `null`，不抛错
    - 其余场景可抛 `NOT_FOUND`
-4. 网络抖动、RPC 失败归类为 `NETWORK_ERROR`
-5. 无法归类时使用 `UNKNOWN`
+4. username 不可用时抛 `USERNAME_TAKEN`
+5. 当前环境不支持 username 直建时抛 `NAMESPACE_UNSUPPORTED_FLOW`
+6. 网络抖动、RPC 失败归类为 `NETWORK_ERROR`
+7. 无法归类时使用 `UNKNOWN`
 
 ## 诊断建议
 

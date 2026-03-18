@@ -2,11 +2,33 @@
 
 本文件定义钱包到 Lens 登录的最小流程。
 
+## 目录
+
+1. [三段式流程](#三段式流程)
+2. [新钱包首次创建流程（无 Lens 账号时）](#新钱包首次创建流程无-lens-账号时)
+3. [启动恢复流程](#启动恢复流程)
+4. [统一回退优先级（必须遵守）](#统一回退优先级必须遵守)
+5. [登录示例](#登录示例)
+6. [状态机映射](#状态机映射)
+7. [关键规则](#关键规则)
+8. [失败处理](#失败处理)
+9. [resetAuth 示例](#resetauth-示例)
+10. [启动时恢复示例](#启动时恢复示例)
+
 ## 三段式流程
 
 1. 钱包连接（宿主层）
-2. 发现该钱包可用 Lens accounts（`listWalletAccounts`）
-3. 选择 account 并登录（`loginWithAccount`）
+2. 发现该钱包可用 Lens 账号（`listWalletAccounts`）
+3. 选择 Lens 账号并登录（`loginWithAccount`）
+
+## 新钱包首次创建流程（无 Lens 账号时）
+
+当 `listWalletAccounts` 返回空数组时，进入首次创建分支：
+
+1. 用户输入候选 username
+2. 调用 `canCreateUsername` 做可用性校验
+3. 可用时调用 `createAccountWithUsername` 创建账号
+4. 创建成功后返回 `AuthSession`，进入 `authenticated`
 
 ## 启动恢复流程
 
@@ -65,9 +87,11 @@ export async function loginWithAccount(client: unknown, walletClient: unknown, i
 
 ## 失败处理
 
-1. 无可用 Lens account：返回空列表，不应导致崩溃
-2. 签名拒绝：抛出 `USER_REJECTED_SIGNATURE`
-3. 会话失效：后续写操作应返回 `SESSION_EXPIRED` 或 `UNAUTHENTICATED`
+1. 无可用 Lens 账号：返回空列表，不应导致崩溃
+2. username 不可用：抛出 `USERNAME_TAKEN`（或等价错误码）
+3. 当前环境不支持 username 直建：抛出 `NAMESPACE_UNSUPPORTED_FLOW`
+4. 签名拒绝：抛出 `USER_REJECTED_SIGNATURE`
+5. 会话失效：后续写操作应返回 `SESSION_EXPIRED` 或 `UNAUTHENTICATED`
 
 ## resetAuth 示例
 
