@@ -22,7 +22,8 @@ type WalletAccountOption = {
 
 type UsernameAvailability = {
   available: boolean;
-  normalizedUsername?: string;
+  normalizedUsername?: string; // localName
+  fullUsername?: string; // e.g. localName@lens
   reason?: string;
 };
 
@@ -58,6 +59,20 @@ type PublishInput = {
   content: string;
   tags?: string[];
 };
+
+type CreateAccountInput = {
+  ownerAddress: string;
+  username: {
+    localName: string;
+    namespace?: string; // default lens
+  };
+  metadataUri: string;
+};
+
+type CreateAccountResult = {
+  accountAddress: string;
+  txHash?: string;
+};
 ```
 
 ## LensService 接口
@@ -67,8 +82,8 @@ interface LensService {
   resumeSession(): Promise<AuthSession | null>;
   getCurrentSession(): Promise<AuthSession | null>;
   listWalletAccounts(ownerAddress: string): Promise<WalletAccountOption[]>;
-  canCreateUsername(input: { username: string }): Promise<UsernameAvailability>;
-  createAccountWithUsername(input: { ownerAddress: string; username: string }): Promise<AuthSession>;
+  canCreateUsername(input: { localName: string; namespace?: string }): Promise<UsernameAvailability>;
+  createAccountWithUsername(input: CreateAccountInput): Promise<CreateAccountResult>;
   loginWithAccount(input: { ownerAddress: string; accountAddress: string }): Promise<AuthSession>;
   logout(): Promise<void>;
   resetAuth(): Promise<void>;
@@ -87,7 +102,7 @@ interface LensService {
 2. `getCurrentSession` 应返回当前内存态或持久化恢复后的会话
 3. `logout` 和 `resetAuth` 都必须清除 session，区别是 `logout` 可包含远端退出动作
 4. `canCreateUsername` 只做可用性校验，不产生副作用
-5. `createAccountWithUsername` 创建成功后应返回可直接进入登录态的 `AuthSession`
+5. `createAccountWithUsername` 只负责创建（`createAccount` + 必要时 `createUsername`），不应假设“创建即登录”
 6. `publishPost` 在未认证时必须抛出 `UNAUTHENTICATED`
 7. `getProfileByHandle` / `getPostById` 查无数据返回 `null`，不抛 SDK 原始异常
 8. service 对外不暴露 SDK result wrapper、operation 对象或底层类型
@@ -95,6 +110,7 @@ interface LensService {
 10. `resumeSession` 失败时，宿主层状态回退应遵循：
    - 钱包已连接 -> `wallet_connected_unauthed`
    - 钱包未连接 -> `disconnected`
+11. 默认账号发现应覆盖“managed + owned”可用账号（`managedBy + includeOwned`），必要时再提供 strict-owned 子视图
 
 ## 实现骨架示例
 
@@ -104,8 +120,8 @@ export function createLensService(deps: {
     resumeSession: () => Promise<unknown | null>;
     getCurrentSession: () => Promise<unknown | null>;
     listWalletAccounts: (ownerAddress: string) => Promise<unknown[]>;
-    canCreateUsername: (input: { username: string }) => Promise<unknown>;
-    createAccountWithUsername: (input: { ownerAddress: string; username: string }) => Promise<unknown>;
+    canCreateUsername: (input: { localName: string; namespace?: string }) => Promise<unknown>;
+    createAccountWithUsername: (input: CreateAccountInput) => Promise<unknown>;
     loginWithAccount: (input: { ownerAddress: string; accountAddress: string }) => Promise<unknown>;
     logout: () => Promise<void>;
     getProfileByHandle: (handle: string) => Promise<unknown | null>;
@@ -117,6 +133,7 @@ export function createLensService(deps: {
   mapper: {
     toWalletAccountOptions: (items: unknown[]) => WalletAccountOption[];
     toUsernameAvailability: (item: unknown) => UsernameAvailability;
+    toCreateAccountResult: (item: unknown) => CreateAccountResult;
     toAuthSession: (item: unknown) => AuthSession;
     toProfileView: (item: unknown) => ProfileView;
     toPostViews: (items: unknown[]) => PostView[];
@@ -142,8 +159,8 @@ export function createLensService(deps: {
       return deps.mapper.toUsernameAvailability(result);
     },
     async createAccountWithUsername(input) {
-      const session = await deps.sdk.createAccountWithUsername(input);
-      return deps.mapper.toAuthSession(session);
+      const result = await deps.sdk.createAccountWithUsername(input);
+      return deps.mapper.toCreateAccountResult(result);
     },
     async loginWithAccount(input) {
       const session = await deps.sdk.loginWithAccount(input);

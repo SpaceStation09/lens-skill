@@ -3,6 +3,8 @@
 Lens 交互层必须管理认证 session，以保证“刷新后尽量免重登”的体验。
 
 本文件基于 Lens 官方认证文档中的 `Manage Sessions` 能力整理（见：https://lens.xyz/docs/protocol/authentication#manage-sessions）。
+其中 `Keep Alive + Resume Session` 路径见：
+https://lens.xyz/docs/protocol/authentication#manage-sessions-keep-alive-resume-session
 
 ## 设计目标
 
@@ -13,31 +15,26 @@ Lens 交互层必须管理认证 session，以保证“刷新后尽量免重登�
 
 ## Client 配置建议
 
-在创建 client 时注入 session 持久化配置，避免只保留内存态。
+按官方文档的 keep-alive 写法，在创建 `PublicClient` 时传 `storage`。
+浏览器场景通常使用 `window.localStorage`：
 
 ```ts
-type SessionStorage = {
-  getItem: (key: string) => string | null | Promise<string | null>;
-  setItem: (key: string, value: string) => void | Promise<void>;
-  removeItem: (key: string) => void | Promise<void>;
-};
+import { PublicClient, testnet } from "@lens-protocol/client";
 
-export function createClientConfig(storage: SessionStorage) {
-  return {
-    // 这里放环境(network/app 等)与认证配置
-    authentication: {
-      storage,
-    },
-  };
-}
+const client = PublicClient.create({
+  environment: testnet,
+  storage: window.localStorage,
+});
 ```
+
+参考含义：若未使用长期 storage，刷新页面后通常无法 `resumeSession()`。
 
 ## 推荐 API（封装后暴露给宿主层）
 
 ```ts
 type SessionManager = {
   resumeSession: () => Promise<AuthSession | null>;
-  getCurrentSession: () => Promise<AuthSession | null>;
+  getCurrentSession: () => Promise<AuthSession | null>; // 从本地内存态读取已归一化会话
   logout: () => Promise<void>;
   resetAuth: () => Promise<void>;
 };
@@ -48,15 +45,19 @@ type SessionManager = {
 ```ts
 export async function resumeSession(client: unknown): Promise<AuthSession | null> {
   const resumed = await (client as never).resumeSession?.();
-  if (!resumed) return null;
+  if (resumed?.isErr?.()) return null;
+  const sessionClient = resumed?.value;
+  if (!sessionClient) return null;
 
-  const current = await (client as never).getCurrentSession?.();
-  if (!current) return null;
+  const { currentSession } = await import("@lens-protocol/client/actions");
+  const current = await currentSession(sessionClient);
+  if (current?.isErr?.() || !current?.value) return null;
+  const session = current.value as any;
 
   return {
-    ownerAddress: current.ownerAddress,
-    accountAddress: current.accountAddress,
-    handle: current.handle,
+    ownerAddress: String(session.authentication?.wallet ?? ""),
+    accountAddress: String(session.authentication?.authenticatedAs ?? ""),
+    handle: session.account?.username?.localName as string | undefined,
   };
 }
 ```
@@ -71,21 +72,16 @@ export async function resumeSession(client: unknown): Promise<AuthSession | null
 
 ## 错误码与状态回退矩阵
 
-| 场景 | 错误码 | 钱包已连接时回退 | 钱包未连接时回退 |
-| --- | --- | --- | --- |
-| 启动恢复失败 | `SESSION_EXPIRED` / `UNAUTHENTICATED` | `wallet_connected_unauthed` | `disconnected` |
-| 登录签名被拒绝 | `USER_REJECTED_SIGNATURE` | `wallet_connected_unauthed`（保持） | `disconnected` |
-| 发布时会话失效 | `SESSION_EXPIRED` | `wallet_connected_unauthed` | `disconnected` |
-| 主动登出 | 无或 `UNAUTHENTICATED` | `wallet_connected_unauthed` | `disconnected` |
-| 钱包断开 | 无 | `-` | `disconnected` |
+| 场景           | 错误码                                | 钱包已连接时回退                    | 钱包未连接时回退 |
+| -------------- | ------------------------------------- | ----------------------------------- | ---------------- |
+| 启动恢复失败   | `SESSION_EXPIRED` / `UNAUTHENTICATED` | `wallet_connected_unauthed`         | `disconnected`   |
+| 登录签名被拒绝 | `USER_REJECTED_SIGNATURE`             | `wallet_connected_unauthed`（保持） | `disconnected`   |
+| 发布时会话失效 | `SESSION_EXPIRED`                     | `wallet_connected_unauthed`         | `disconnected`   |
+| 主动登出       | 无或 `UNAUTHENTICATED`                | `wallet_connected_unauthed`         | `disconnected`   |
+| 钱包断开       | 无                                    | `-`                                 | `disconnected`   |
 
 规则：
 
 1. 任何错误都不能将状态提升为 `authenticated`
 2. 只有 `resumeSession` 成功或 `loginWithAccount` 成功，才能进入 `authenticated`
-
-## Next.js 注意事项
-
-1. session 恢复应在 provider 初始化阶段触发
-2. 避免在每个页面重复触发恢复逻辑
-3. 若使用浏览器存储，注意 SSR 环境访问边界（仅客户端读写）
+3. 对齐官方 keep-alive 流程：建议对“不可恢复 session”提供明确可见错误，便于定位

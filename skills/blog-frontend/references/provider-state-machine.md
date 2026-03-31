@@ -20,6 +20,11 @@ type AccountState =
    - 恢复失败且钱包已连接 -> `wallet_connected_unauthed`
    - 恢复失败且钱包未连接 -> `disconnected`
 
+前置约束：
+
+1. `resumeSession` 的可恢复性依赖 `lens-interaction` 已按官方 keep-alive 配置持久化 storage（浏览器默认 `window.localStorage`）
+2. 宿主层体验目标应明确：用户刷新或回访时不应被迫频繁重新登录/签名
+
 ## 必备动作
 
 1. `loginLens(accountAddress)`

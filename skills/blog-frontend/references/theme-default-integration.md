@@ -1,6 +1,7 @@
 # Theme Default Integration
 
 本 skill 只提供 `theme-default` 源码资产。
+在默认模式下，theme 仅负责 UI；功能层来自 starter 内核。
 
 ## 资产来源
 
@@ -17,6 +18,7 @@
 1. theme 只消费宿主层传入数据和动作
 2. theme 不直接调用 `LensService` 或 Lens SDK
 3. theme 可以改视觉，不改变权限判定来源
+4. theme contract 以 `references/theme-contract.md` 为准
 
 ## 最小接入步骤
 

@@ -18,7 +18,7 @@
 ## 三段式流程
 
 1. 钱包连接（宿主层）
-2. 发现该钱包可用 Lens 账号（`listWalletAccounts`）
+2. 发现该钱包可管理/可用 Lens 账号（默认 `fetchAccountsAvailable({ managedBy, includeOwned: true })`）
 3. 选择 Lens 账号并登录（`loginWithAccount`）
 
 ## 新钱包首次创建流程（无 Lens 账号时）
@@ -27,8 +27,9 @@
 
 1. 用户输入候选 username
 2. 调用 `canCreateUsername` 做可用性校验
-3. 可用时调用 `createAccountWithUsername` 创建账号
-4. 创建成功后返回 `AuthSession`，进入 `authenticated`
+3. 可用时执行 `createAccount`（需提供 metadata URI）部署账号
+4. 若 namespace 为 restricted，再执行 `createUsername`
+5. 部署完成后执行 `switchAccount` / account owner 登录，进入 `authenticated`
 
 ## 启动恢复流程
 
@@ -49,7 +50,7 @@
 ## 登录示例
 
 ```ts
-import { evmAddress } from "@lens-protocol/types";
+import { evmAddress } from "@lens-protocol/client";
 import { signMessageWith } from "@lens-protocol/client/viem";
 
 export async function loginWithAccount(client: unknown, walletClient: unknown, input: {
@@ -84,6 +85,7 @@ export async function loginWithAccount(client: unknown, walletClient: unknown, i
 3. 切号可通过重新 `loginWithAccount` 完成
 4. 主动登出、钱包断开、签名失效后，应调用 `resetAuth`
 5. 宿主层 provider 初始化时应优先尝试会话恢复，而不是强制用户每次重登
+6. 新账号创建流程不要假设“创建即登录成功”；只有完成切换/登录后才进入 `authenticated`
 
 ## 失败处理
 

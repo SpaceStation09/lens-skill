@@ -1,6 +1,6 @@
 ---
 name: blog-frontend
-description: 指导 agent 从零搭建基于 Next.js 的博客前端宿主层：保持 app 路由层简洁，将状态机与服务逻辑放入 lib，并使用 components 下的 theme-default 源码完成页面渲染；支持无 Lens 账号用户在前端完成创建。
+description: 指导 agent 以最小骨架源码 + 可替换 theme 的方式搭建基于 Next.js 的 Lens 博客前端。默认先复制稳定功能内核（provider/guards/service contract），再在 theme 层完成 UI 美化。
 ---
 
 # Blog Frontend
@@ -15,7 +15,8 @@ description: 指导 agent 从零搭建基于 Next.js 的博客前端宿主层：
 2. 全局账户状态机 provider（实现在 `lib`，由 `app` 引入）
 3. landing / profile / post detail / write 四类页面行为（含无账号创建流程）
 4. 与 `lens-interaction` 的服务接线
-5. `theme-default` 源码资产接入
+5. 分发最小功能骨架源码（starter kernel）
+6. `theme-default` 源码资产接入
 
 本 skill 不负责：
 
@@ -68,6 +69,13 @@ components/
     theme-default/
       index.tsx
       styles.css
+assets/
+  starter/
+    lib/blog/
+      provider/state.tsx
+      services/lens-service.ts
+      guards/owner.ts
+      types.ts
 ```
 
 规则：
@@ -77,42 +85,68 @@ components/
 3. provider 状态机与 service 逻辑放在 `lib/blog/`
 4. theme-default 放在 `components/blog/theme-default/`
 
-## 代码分发策略
+## 代码分发策略（最小混用）
 
-1. 仅分发 `assets/theme-default/*`
-2. provider/page/service 实现只给规范，不提供模板源码
-3. 不分发其他 theme 资产
+1. 分发一套稳定功能内核：`assets/starter/lib/blog/*`
+2. 分发一套可替换主题示例：`assets/theme-default/*`
+3. 默认不分发多套功能模板，不分发多主题资产
+4. 默认先复制 starter 内核，再接 `LensService` 真实现，最后调整 theme 视觉
 
-## 默认钱包栈
+## 默认改动边界
 
-默认钱包方案固定为：
+1. 默认只允许改 `components/blog/theme-*` 和样式文件
+2. 修改 `lib/blog/provider`、`lib/blog/services`、`lib/blog/guards` 前，需先说明原因
+3. 不允许在 theme 中增加协议调用与权限判定
 
-1. `Privy`（钱包连接与认证入口）
-2. `wagmi`（钱包与连接器状态）
-3. `viem`（链与签名底层能力）
+## 默认钱包方案
+
+默认使用 `Privy` 作为钱包连接与认证入口。
 
 规则：
 
-1. 无明确要求时，不替换为其他钱包 UI 库
+1. 宿主层只消费“是否已连接 + 当前钱包地址 + 签名能力”
 2. 钱包连接体验（钱包列表、登录方式、连接弹窗）由 `Privy` 负责
-3. 宿主层只消费“是否已连接 + 当前钱包地址 + 签名能力”
+3. `wagmi` / `viem` 可按项目实现需要引入，不作为强制前置
 
-## 必读 references（顺序）
+## 按阶段读取 references
+
+### Phase A：复制功能内核前
+
+触发条件：开始搭建宿主层骨架或准备复制 starter 内核。
 
 1. [references/host-architecture.md](references/host-architecture.md)
-2. [references/provider-state-machine.md](references/provider-state-machine.md)
-3. [references/routes-and-guards.md](references/routes-and-guards.md)
-4. [references/page-specs.md](references/page-specs.md)
-5. [references/owner-identity.md](references/owner-identity.md)
-6. [references/lens-service-integration.md](references/lens-service-integration.md)
-7. [references/theme-default-integration.md](references/theme-default-integration.md)
+2. [references/starter-kernel-integration.md](references/starter-kernel-integration.md)
+
+### Phase B：状态机与路由落地
+
+触发条件：开始实现 provider、路由守卫和页面行为。
+
+1. [references/provider-state-machine.md](references/provider-state-machine.md)
+2. [references/routes-and-guards.md](references/routes-and-guards.md)
+3. [references/page-specs.md](references/page-specs.md)
+4. [references/owner-identity.md](references/owner-identity.md)
+
+### Phase C：接入服务层
+
+触发条件：页面要接真实数据与写入动作时。
+
+1. [references/lens-service-integration.md](references/lens-service-integration.md)
+
+### Phase D：主题接入与美化
+
+触发条件：功能路径跑通后，开始接入或改造 theme。
+
+1. [references/theme-contract.md](references/theme-contract.md)
+2. [references/theme-default-integration.md](references/theme-default-integration.md)
+
+不要在项目开始时一次性加载全部 references。
 
 ## 落地顺序
 
-1. 先实现 provider（状态机 + 启动恢复）
-2. 再实现四条路由页面
-3. 再把页面接到 `LensService`
-4. 最后接入 `theme-default` 渲染
+1. 先复制 starter 内核到目标项目
+2. 再实现或接入 `LensService` 真正交互层
+3. 再实现四条路由页面并完成接线
+4. 最后接入 `theme-default`，只在 theme 层做 UI 美化
 
 不要先做抽象 runtime，再反推页面。
 
@@ -127,6 +161,7 @@ components/
 7. 钱包已连接但无 Lens 账号时，可在前端完成 username 校验与创建
 8. 在 `/` 上登录成功、创建成功或恢复成功后，自动跳转到当前 Lens 账号的 `/:handle`
 9. theme 不直接调用 Lens SDK
+10. 未明确说明时，功能层文件不做结构性改造
 
 ## 交付说明
 
