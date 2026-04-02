@@ -89,12 +89,22 @@ type AuthSessionView = {
 ### Account
 
 ```ts
+type MetadataAttributeView = {
+  key: string;
+  type: string;
+  value: string;
+};
+```
+
+```ts
 type AccountView = {
   address: string;
   username?: string | null;
   name?: string | null;
   bio?: string | null;
   picture?: string | null;
+  coverPicture?: string | null;
+  attributes?: MetadataAttributeView[] | null;
 };
 ```
 
@@ -105,7 +115,9 @@ type PostView = {
   id: string;
   slug?: string | null;
   authorAddress: string;
+  title?: string | null;
   content?: string | null;
+  tags?: string[] | null;
   createdAt?: string | null;
 };
 ```

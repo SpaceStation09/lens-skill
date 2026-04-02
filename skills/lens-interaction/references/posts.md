@@ -24,6 +24,12 @@
 3. 调用 `post(sessionClient, { contentUri })` 创建帖子。
 4. 处理链上操作结果并等待可读状态。
 
+博客场景建议：
+
+- 对个人博客场景，默认推荐使用 `article` 作为 Post metadata 格式。
+- `textOnly` 更适合短帖或状态更新，不作为博客正文的默认格式。
+- `image` 等其他格式可用于特定内容类型，但不作为博客文章的主路径。
+
 常见 metadata 写法（TypeScript）：
 
 ```ts
@@ -69,6 +75,27 @@ const metadata = article({
   tags: ["question", "42"],
 });
 ```
+
+对于博客正文，建议优先围绕下面这组最小 article 字段组织内容：
+
+```ts
+type BlogArticleInput = {
+  title: string;
+  content: string; // markdown
+  tags?: string[];
+};
+```
+
+字段说明：
+
+- `title`：文章标题。
+- `content`：文章正文，使用 markdown 表达。
+- `tags`：文章标签，用于前端列表与详情页展示。
+
+与前端契约的关系：
+
+- `article` metadata 最终应由 `lens-interaction` 映射为 `data-contract.md` 中的 `PostView`。
+- 对博客前端，当前最关键的文章字段是 `title`、`content`、`tags`、`createdAt`。
 
 上传 metadata（TypeScript）：
 
