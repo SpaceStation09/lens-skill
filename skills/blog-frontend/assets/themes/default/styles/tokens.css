@@ -1,6 +1,16 @@
 :root {
-  --theme-bg: #f1eee6;
-  --theme-surface: #fffef9;
-  --theme-ink: #181512;
-  --theme-border: #d8d2c6;
+  --theme-bg: #fbfbf9;
+  --theme-sidebar: #f0f0ec;
+  --theme-surface: #ffffff;
+  --theme-ink: #121212;
+  --theme-muted: #767676;
+  --theme-faint: #b8b8b8;
+  --theme-border: #e4e4de;
+  --theme-accent: #101010;
+  --theme-danger: #b42318;
+  --theme-sidebar-width: 248px;
+  --theme-content-width: 880px;
+  --theme-reading-width: 720px;
+  --theme-body-font: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --theme-display-font: "Inter", "Helvetica Neue", Arial, sans-serif;
 }

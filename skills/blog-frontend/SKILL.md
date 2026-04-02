@@ -86,6 +86,7 @@ description: 为 Lens 原生个人博客提供官方前端 baseline。默认基�
    - 官方默认主题层载体。
    - 提供默认页面模板、表现组件与样式 tokens。
    - 不承担应用级基础设施职责。
+   - 若需要自行开发或替换 theme，请参考 [references/theme-development-guide.md](references/theme-development-guide.md)。
 
 ## Inputs
 
@@ -131,3 +132,4 @@ description: 为 Lens 原生个人博客提供官方前端 baseline。默认基�
 2. [references/page-information-model.md](references/page-information-model.md)
 3. [references/starter-shell-structure.md](references/starter-shell-structure.md)
 4. [references/theme-layer-model.md](references/theme-layer-model.md)
+5. [references/theme-development-guide.md](references/theme-development-guide.md)
