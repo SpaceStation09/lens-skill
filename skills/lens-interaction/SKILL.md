@@ -29,6 +29,7 @@ description: 指导 agent 在个人blog项目开发中实现 Lens 交互层（au
 - Account 细节：阅读 [references/accounts.md](./references/accounts.md)
 - Post 细节：阅读 [references/posts.md](./references/posts.md)
 - 数据交付契约：阅读 [references/data-contract.md](./references/data-contract.md)
+- 运行时配置：阅读 [references/configuration.md](./references/configuration.md)
 
 仅在需要对应模块时加载相应 references，避免一次性加载全部内容。
 
