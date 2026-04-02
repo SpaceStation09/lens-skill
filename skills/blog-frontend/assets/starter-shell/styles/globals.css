@@ -1,0 +1,80 @@
+:root {
+  color-scheme: light;
+  --bg: #f6f3ee;
+  --surface: #fffdf8;
+  --ink: #1c1a17;
+  --muted: #6a645b;
+  --border: #ded7ca;
+  --accent: #0f766e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px 20px 56px;
+}
+
+.app-shell__header,
+.page-container {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.eyebrow,
+.muted {
+  color: var(--muted);
+}
+
+.page-container {
+  display: grid;
+  gap: 20px;
+}
+
+.card,
+.state-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.state-block--error {
+  color: #b42318;
+}
+
+.card-stack,
+.feed-list {
+  display: grid;
+  gap: 16px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-list li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e7f3f1;
+  color: var(--accent);
+}

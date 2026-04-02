@@ -1,0 +1,13 @@
+@import "./tokens.css";
+
+.theme-card {
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.theme-feed {
+  display: grid;
+  gap: 16px;
+}
