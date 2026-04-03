@@ -1,168 +1,145 @@
 ---
 name: blog-frontend
-description: 指导 agent 以最小骨架源码 + 可替换 theme 的方式搭建基于 Next.js 的 Lens 博客前端。默认先复制稳定功能内核（provider/guards/service contract），再在 theme 层完成 UI 美化。
+description: 为 Lens 原生个人博客提供官方前端 baseline。默认基于 Next.js starter shell 与解耦的 default theme 落地博客宿主层、钱包接入、profile/post/compose 页面，并通过 lens-interaction 的 data contract 接线。
 ---
 
 # Blog Frontend
 
-本 skill 定义一套最小可落地的博客前端实现方式。目标是工程可用与行为一致，不追求复杂抽象。
+## Purpose
 
-## 范围
+本 skill 是 `lens-blog-builder` 体系下的前端实现子 skill。
+
+它负责构建 Lens 原生个人博客 web app 的前端宿主层，并默认从官方 baseline 起步，而不是每次从零设计整套前端系统。
+
+## Dependencies
+
+使用本 skill 前，默认接受以下分层：
+
+1. 产品访谈、需求编排、是否偏离官方 baseline 的判断，由 `lens-blog-builder` 负责。
+2. Lens 账户、认证、内容读写、session 与 data contract，由 `lens-interaction` 负责。
+3. 本 skill 只消费 `lens-interaction` 暴露的稳定能力，不重写底层 Lens 交互。
+
+按当前任务需要读取以下 `lens-interaction` references：
+
+1. [../lens-interaction/references/data-contract.md](../lens-interaction/references/data-contract.md)：实现页面数据接线时优先阅读。
+2. [../lens-interaction/references/posts.md](../lens-interaction/references/posts.md)：实现 post detail、compose、publish 时阅读。
+3. [../lens-interaction/references/configuration.md](../lens-interaction/references/configuration.md)：处理 Lens 运行配置时阅读。
+
+## Core Responsibilities
 
 本 skill 负责：
 
-1. Next.js 宿主层路由
-2. 全局账户状态机 provider（实现在 `lib`，由 `app` 引入）
-3. landing / profile / post detail / write 四类页面行为（含无账号创建流程）
-4. 与 `lens-interaction` 的服务接线
-5. 分发最小功能骨架源码（starter kernel）
-6. `theme-default` 源码资产接入
+1. 基于官方前端栈搭建 Lens 博客前端。
+2. 组织页面结构、路由、layout、providers 与 feature 边界。
+3. 承接钱包连接，以及 Lens 账号创建与登录流程。
+4. 落地 profile、post detail、compose/publish 等核心页面。
+5. 复用官方 starter shell 与 default theme 资产完成交付。
+6. 在遵循 `data-contract.md` 的前提下完成页面数据接线。
 
-本 skill 不负责：
+## Execution Boundaries
 
-1. Lens SDK 实现细节
-2. Lens session 底层存储与认证实现
-3. 自定义多主题系统
+执行时遵守以下边界：
 
-## 架构（从你的方案直接落地）
+1. 不重新做 `lens-blog-builder` 的需求访谈与产品编排。
+2. 不重写 `lens-interaction` 的 Lens 交互逻辑。
+3. 默认不从零设计整套前端系统，优先从官方 baseline 起步。
+4. 若需求明显突破 baseline 边界，先说明代价与影响，再决定是否扩展。
+5. 结构层与主题层不要混写。
 
-1. 宿主层（Next.js）
-   - 管路由
-   - 管账户状态机
-   - 决定页面权限和可操作性
-2. View 层（theme）
-   - 提供可复用 UI 组件与渲染
-   - 不做协议调用和权限判定
-3. 数据层（Lens）
-   - 通过 `lens-interaction` 暴露的 `LensService` 完成读写
+## Minimum Feature Set
 
-## 账户状态机
+以下能力是 Lens 博客前端的基础交付要求，不作为可选项处理：
 
-固定三态：
+1. Lens 账号创建与登录。
+2. Profile 展示：展示目标 Lens 账号的基础信息与 post feed。
+3. Post 详情展示：展示单篇 post 的完整内容与基础元信息。
+4. 写作与发布：允许用户以 `article` 形式编辑并发送自己的 post。
 
-1. `disconnected`
-2. `wallet_connected_unauthed`
-3. `authenticated`
+## Baseline Architecture
 
-页面展示和动作可用性必须由这三态统一驱动。
+本 skill 只维护一套官方前端技术栈和一套官方 baseline。
 
-## 最小目录（Next.js 优先）
+默认规则：
 
-```txt
-app/
-  providers.tsx
-  page.tsx
-  [handle]/page.tsx
-  p/[postId]/page.tsx
-  write/page.tsx
-lib/
-  blog/
-    provider/
-      state.ts
-      actions.ts
-    services/
-      lens-service.ts
-    guards/
-      owner.ts
-components/
-  blog/
-    theme-default/
-      index.tsx
-      styles.css
-assets/
-  starter/
-    lib/blog/
-      provider/state.tsx
-      services/lens-service.ts
-      guards/owner.ts
-      types.ts
-```
+1. 官方技术栈默认是 `Next.js`。
+2. 官方 baseline 由结构层 starter shell 与主题层 default theme 组成。
+3. 结构层负责路由、layout、providers、状态承接、数据接入位点与页面骨架。
+4. 主题层负责视觉风格、渲染布局、组件皮肤、排版与页面表现。
+5. 定制优先通过主题层的组合、替换和覆写完成。
+6. 若用户明确要求其他框架，应将官方 baseline 视为参考实现；这类偏离由 `lens-blog-builder` 识别并编排。
 
-规则：
+默认钱包策略：
 
-1. 除非用户明确要求，不额外引入 `src/` 平行目录
-2. `app/` 只放路由入口和页面壳，保持干净
-3. provider 状态机与 service 逻辑放在 `lib/blog/`
-4. theme-default 放在 `components/blog/theme-default/`
+1. 官方 baseline 默认采用 `Privy` 作为钱包接入方案。
+2. 默认优先提供邮箱登录驱动的钱包接入体验，以降低普通用户理解钱包概念的门槛。
+3. 若项目要求其他钱包方案，视为偏离官方 baseline 的定制项。
 
-## 代码分发策略（最小混用）
+## Asset Model
 
-1. 分发一套稳定功能内核：`assets/starter/lib/blog/*`
-2. 分发一套可替换主题示例：`assets/theme-default/*`
-3. 默认不分发多套功能模板，不分发多主题资产
-4. 默认先复制 starter 内核，再接 `LensService` 真实现，最后调整 theme 视觉
+官方资产分为两部分：
 
-## 默认改动边界
+1. `assets/starter-shell/`
+   - 官方结构层载体。
+   - 提供可运行的最小博客宿主层。
+   - 包含页面路由、feature 边界、providers、与 `lens-interaction` 对接的入口位点。
+2. `assets/themes/default/`
+   - 官方默认主题层载体。
+   - 提供默认页面模板、表现组件与样式 tokens。
+   - 不承担应用级基础设施职责。
+   - 若需要自行开发或替换 theme，请参考 [references/theme-development-guide.md](references/theme-development-guide.md)。
 
-1. 默认只允许改 `components/blog/theme-*` 和样式文件
-2. 修改 `lib/blog/provider`、`lib/blog/services`、`lib/blog/guards` 前，需先说明原因
-3. 不允许在 theme 中增加协议调用与权限判定
+## Starter Shell Usage
 
-## 默认钱包方案
+使用 `starter-shell` 时遵守以下规则：
 
-默认使用 `Privy` 作为钱包连接与认证入口。
+1. 默认从 `assets/starter-shell/` 起步，而不是从空项目重新设计结构层。
+2. 优先复用它的页面结构、feature 边界、providers 与 `lens-interaction` 接线入口。
+3. 若需求主要是视觉定制，优先替换或开发 theme，而不是先改写 shell。
+4. 若目标是已有前端项目，可将 `starter-shell` 作为结构参考迁移，而不是要求逐文件照搬。
+5. 只有当需求明显突破官方 baseline 时，才扩大对 shell 的改动范围。
 
-规则：
+## Inputs
 
-1. 宿主层只消费“是否已连接 + 当前钱包地址 + 签名能力”
-2. 钱包连接体验（钱包列表、登录方式、连接弹窗）由 `Privy` 负责
-3. `wagmi` / `viem` 可按项目实现需要引入，不作为强制前置
+本 skill 接收的输入应聚焦前端落地本身：
 
-## 按阶段读取 references
+1. 来自 `lens-blog-builder` 的前端需求摘要。
+2. 视觉风格偏好与页面气质。
+3. 信息架构偏好。
+4. 对官方 baseline 的偏离要求。
+5. 对 default theme 的定制要求。
+6. 对页面模块、写作体验与展示重点的额外要求。
 
-### Phase A：复制功能内核前
+不要在这里重新做需求访谈。
 
-触发条件：开始搭建宿主层骨架或准备复制 starter 内核。
+## Execution Flow
 
-1. [references/host-architecture.md](references/host-architecture.md)
-2. [references/starter-kernel-integration.md](references/starter-kernel-integration.md)
+推荐执行顺序：
 
-### Phase B：状态机与路由落地
+1. 先按当前任务需要读取 `lens-interaction` 的 `data-contract.md`、`posts.md`、`configuration.md`。
+2. 从 `assets/starter-shell/` 起步搭建结构层。
+3. 保持结构层稳定，再装配或改造 `assets/themes/default/`。
+4. 按 `data-contract.md` 对接 profile、post、compose 的数据面。
+5. 默认将博客发帖路径收敛到 `article`。
+6. 先完成最小功能清单，再处理额外风格化与模块扩展。
 
-触发条件：开始实现 provider、路由守卫和页面行为。
+## Deliverables
 
-1. [references/provider-state-machine.md](references/provider-state-machine.md)
-2. [references/routes-and-guards.md](references/routes-and-guards.md)
-3. [references/page-specs.md](references/page-specs.md)
-4. [references/owner-identity.md](references/owner-identity.md)
+应用本 skill 后，至少应交付：
 
-### Phase C：接入服务层
+1. 一个可运行的 Lens 博客前端。
+2. 清晰的页面与路由结构。
+3. 钱包接入与 Lens 账号创建/登录路径。
+4. profile、post detail、compose/publish 核心界面。
+5. 与 `lens-interaction` 契约对齐的数据接入位点。
+6. 最小必要说明文档。
+7. 对应前端宿主层的环境变量模板。
 
-触发条件：页面要接真实数据与写入动作时。
+## Read The Local References
 
-1. [references/lens-service-integration.md](references/lens-service-integration.md)
+按需读取以下参考，而不是一次性全部加载：
 
-### Phase D：主题接入与美化
-
-触发条件：功能路径跑通后，开始接入或改造 theme。
-
-1. [references/theme-contract.md](references/theme-contract.md)
-2. [references/theme-default-integration.md](references/theme-default-integration.md)
-
-不要在项目开始时一次性加载全部 references。
-
-## 落地顺序
-
-1. 先复制 starter 内核到目标项目
-2. 再实现或接入 `LensService` 真正交互层
-3. 再实现四条路由页面并完成接线
-4. 最后接入 `theme-default`，只在 theme 层做 UI 美化
-
-不要先做抽象 runtime，再反推页面。
-
-## 最小验收
-
-1. landing 提供 connect wallet、Lens 登录与无账号创建入口
-2. `/:handle` 公开可读，并区分 owner / non-owner
-3. `/p/:postId` 公开可读
-4. `/write` 非 owner 不可发布，owner 可发布
-5. owner 判定以 address 为权威，不依赖 handle 文本完全匹配
-6. 会话恢复失败后状态回退与 `lens-interaction` 一致
-7. 钱包已连接但无 Lens 账号时，可在前端完成 username 校验与创建
-8. 在 `/` 上登录成功、创建成功或恢复成功后，自动跳转到当前 Lens 账号的 `/:handle`
-9. theme 不直接调用 Lens SDK
-10. 未明确说明时，功能层文件不做结构性改造
-
-## 交付说明
-
-应用本 skill 后，agent 应按当前会话要求汇报结果；若用户未指定格式，优先简洁说明“已完成项、未完成项、风险与下一步”。
+1. [references/baseline-architecture.md](references/baseline-architecture.md)
+2. [references/page-information-model.md](references/page-information-model.md)
+3. [references/starter-shell-structure.md](references/starter-shell-structure.md)
+4. [references/theme-layer-model.md](references/theme-layer-model.md)
+5. [references/theme-development-guide.md](references/theme-development-guide.md)

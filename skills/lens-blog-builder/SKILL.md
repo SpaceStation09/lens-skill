@@ -1,132 +1,120 @@
 ---
 name: lens-blog-builder
-description: 以项目结果为目标，指导 agent 从 0 到 1 搭建基于 Lens 的个人博客。先做需求访谈，再按严格流水线编排 blog-frontend 与 lens-interaction，完成联调后交付。
+description: 作为 Lens 博客体系的入口 skill，负责确认会影响实现路径的关键决策，输出结构化需求摘要，并将工作编排给 lens-interaction 与 blog-frontend。
 ---
 
 # Lens Blog Builder
 
-本 skill 是顶层编排层。它不替代 `blog-frontend` 或 `lens-interaction`，而是负责把两者按阶段组织成可交付的建站流程。
+## Purpose
 
-## 适用场景
+本 skill 是整个 Lens 博客体系的入口与编排层。
 
-当用户要“从零搭 Lens 个人博客”或要“完整落地 Lens blog 项目”时使用本 skill。
+它负责把“我要一个基于 Lens 的个人博客”转成明确的实现路径，而不是直接承担所有底层实现细节。
 
-## 非适用场景
+## Skill Graph
 
-1. 用户只改某一个页面样式
-2. 用户只修复 Lens 登录或 session 问题
-3. 用户只调整主题组件而不涉及完整建站
+本 skill 与以下子 skill 配合：
 
-以上场景优先使用对应子 skill。
+1. [../lens-interaction/SKILL.md](../lens-interaction/SKILL.md)
+   - 负责 Lens 交互层、运行时配置、认证、account/post 读写与 data contract。
+2. [../blog-frontend/SKILL.md](../blog-frontend/SKILL.md)
+   - 负责前端宿主层、starter shell、钱包前端接入、页面与 theme。
+3. `lens-blog-builder`
+   - 负责关键决策确认、需求摘要、实现路径判断、任务拆解与子 skill 调度。
 
-## 产物边界
+## Builder Responsibilities
 
-1. 顶层编排与阶段门禁
-2. 需求访谈问题集
-3. 项目级实施与联调收敛
+本 skill 负责：
 
-本 skill 不提供可直接复制的完整业务源码模板。
+1. 确认会影响实现路径的关键决策。
+2. 判断当前需求走默认 baseline，还是高自由定制路径。
+3. 判断当前工作重点属于 Lens 交互层、前端层，还是两者联动。
+4. 形成结构化需求摘要。
+5. 给出实施顺序。
+6. 把明确任务交给合适的子 skill 推进。
 
-## 必须调度的子 skill
+## Execution Boundaries
 
-1. `blog-frontend`：负责 Next.js 宿主层、路由、provider、theme 接入
-2. `lens-interaction`：负责 Lens SDK 交互层、认证、session、service contract
+本 skill 不负责：
 
-## 必读 references（按阶段加载）
+1. 重写 `lens-interaction` 的实现细节。
+2. 重写 `blog-frontend` 的具体前端规则。
+3. 在边界清晰时继续把实现留在 builder 自己手里。
+4. 把高自由需求误当成默认 baseline 需求。
+5. 重复追问不会改变实现路径的问题。
 
-1. 访谈阶段：`references/interview-checklist.md`
-2. 实施阶段：`references/pipeline-checkpoints.md`
+## Implementation Path Questions
 
-不要在开始时一次性加载全部 references。
+优先确认以下会影响实现路径的决策：
 
-## 子 skill 调度时机（按阶段）
+1. Lens 环境
+   - 使用 `testnet` 还是 `mainnet`
+2. Lens app
+   - 是否使用自己的 Lens app
+   - 若不使用，默认采用官方 test app 地址
+3. 钱包方案
+   - 是否接受默认钱包方案 `Privy`
+   - 若不接受，指定其他钱包方案
+4. 前端路径
+   - 是否接受默认 frontend baseline
+5. 设计输入
+   - 是否有 Figma、参考站点或明确视觉参考
+6. 交付范围
+   - 这次是只做结构与接线，还是连视觉一起做
+   - 落到新项目还是已有项目
 
-### Phase 0：需求访谈
+若其中某些答案可以低风险补全，应直接补全推进，不必机械追问。
 
-触发条件：用户提出从 0 到 1 建站目标，但约束尚未确认。
+## Decision Rules
 
-规则：
+1. 用户未明确要求特殊框架时，默认走 `blog-frontend` 官方 baseline。
+2. 用户要求其他框架或明显偏离 baseline 时，标记为高自由定制路径。
+3. 主要问题集中在 Lens 环境、app、auth、contract、account/post 读写时，优先调用 `lens-interaction`。
+4. 主要问题集中在页面、starter shell、theme、钱包前端接入时，优先调用 `blog-frontend`。
+5. 若需求同时涉及两层，先确定 Lens 配置与交互前提，再推进前端落地。
+6. 若已有 Figma 或明确视觉参考，可将 theme 定制纳入当前范围；否则默认先完成结构与接线。
 
-1. 此阶段不调度实现型子 skill。
-2. 只收集约束并输出“本次实现约束摘要”。
+## Structured Output
 
-### Phase 1：宿主层骨架
+本 skill 默认输出以下结构化摘要：
 
-触发条件：约束摘要已确认，开始进入代码实施。
+1. `Project Summary`
+   - 用户当前要做的 Lens 博客范围
+2. `Implementation Path`
+   - 默认 baseline 或高自由定制
+3. `Key Decisions`
+   - Lens 环境
+   - Lens app 方案
+   - 钱包方案
+   - 是否采用默认 frontend baseline
+   - 是否有设计稿
+   - 新项目还是已有项目
+4. `Current Scope`
+   - 当前阶段只做什么
+5. `Open Risks or Missing Inputs`
+   - 尚未确认、但会影响后续推进的内容
+6. `Next Skill To Invoke`
+   - `lens-interaction` 或 `blog-frontend`
+7. `Next Step`
+   - 下一步执行动作
 
-规则：
+如需参考输出形状，请阅读 [references/builder-output-example.md](references/builder-output-example.md)。
 
-1. 调度 `blog-frontend`，优先复制 starter 内核并落路由壳。
-2. 只读取 `blog-frontend` 中与骨架阶段相关的 references。
+## Deliverables
 
-### Phase 2：Lens 交互层
+应用本 skill 后，至少应交付：
 
-触发条件：宿主层骨架已建立，开始接真实数据与认证流程。
+1. 一份整理后的需求摘要。
+2. 对实现路径的明确判断。
+3. 对默认 baseline / 高自由定制的判断。
+4. 子 skill 调用建议。
+5. 当前阶段的实施计划。
+6. 下一步执行建议。
 
-规则：
+## Read The Local References
 
-1. 调度 `lens-interaction`，实现 runtime、session、`LensService`、mapper 与错误模型。
-2. 不在本阶段做 theme 美化。
+按当前任务需要读取以下 references：
 
-### Phase 3：联调与主题
-
-触发条件：`LensService` contract 闭环后，开始走完整用户路径。
-
-规则：
-
-1. 继续使用 `blog-frontend` 完成页面接线。
-2. 仅在此阶段进入 theme 改造与 UI 美化。
-3. 默认不改功能层结构，除非用户明确要求。
-
-## 执行流程（Inversion + Pipeline）
-
-### Phase 0: 需求访谈（必须先完成）
-
-1. 读取 `references/interview-checklist.md`
-2. 逐项确认关键约束
-3. 生成“本次实现约束摘要”并等待用户确认
-
-硬门禁：未完成约束确认，不进入 Phase 1。
-
-### Phase 1: 项目骨架与宿主层
-
-1. 调度 `blog-frontend`
-2. 先复制 `blog-frontend` 的 starter 功能内核（`assets/starter/lib/blog/*`）
-3. 再落 provider 与路由壳，保持 `app` 简洁、状态机与服务逻辑放 `lib`
-
-硬门禁：路由和账户状态机未落地，不进入 Phase 2。
-
-### Phase 2: Lens 交互层
-
-1. 调度 `lens-interaction`
-2. 建立 runtime、session、LensService、mapper、错误模型
-3. 只向宿主层暴露稳定 contract
-
-硬门禁：`LensService` contract 未闭环，不进入 Phase 3。
-
-### Phase 3: 页面接线与主题接入
-
-1. 将页面接到 `LensService`
-2. 接入 `theme-default` 资产渲染
-3. 默认只在 theme 层做 UI 美化，功能层不做结构性改造
-4. 完成登录、创建、读取、发布的主路径联调
-
-硬门禁：核心用户路径未跑通，不进入交付。
-
-## 强制规则
-
-1. 优先复用子 skill 既有规范，不重复定义冲突规则
-2. 不允许页面层直接调用 Lens SDK
-3. 不允许跳过阶段门禁
-4. 用户未明确要求时，保持最小可交付范围
-5. 汇报必须包含：已完成项、未完成项、风险、下一步
-6. 默认采用“一个稳定内核 + 一个可替换皮肤”，不分发多套功能模板
-
-## 最小验收目标
-
-1. 用户可连接钱包并完成 Lens 登录
-2. 无 Lens 账号用户可在前端完成 username 校验与创建
-3. `/:handle` 与 `/p/:postId` 可公开读取
-4. `/write` 仅 owner 可发布
-5. 刷新后 session 可恢复，失败时按规则回退
-6. theme 不调用 Lens SDK，宿主层仅依赖 `LensService`
+1. [references/interview-checklist.md](references/interview-checklist.md)
+2. [references/pipeline-checkpoints.md](references/pipeline-checkpoints.md)
+3. [references/builder-output-example.md](references/builder-output-example.md)
