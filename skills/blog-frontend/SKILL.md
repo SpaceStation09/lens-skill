@@ -141,5 +141,6 @@ description: 为 Lens 原生个人博客提供官方前端 baseline。默认基�
 1. [references/baseline-architecture.md](references/baseline-architecture.md)
 2. [references/page-information-model.md](references/page-information-model.md)
 3. [references/starter-shell-structure.md](references/starter-shell-structure.md)
-4. [references/theme-layer-model.md](references/theme-layer-model.md)
-5. [references/theme-development-guide.md](references/theme-development-guide.md)
+4. [references/privy-integration.md](references/privy-integration.md)
+5. [references/theme-layer-model.md](references/theme-layer-model.md)
+6. [references/theme-development-guide.md](references/theme-development-guide.md)

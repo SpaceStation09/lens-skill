@@ -23,6 +23,18 @@
    - session 的存储策略
    - 浏览器前端默认使用 `window.localStorage`
 
+## SDK Version
+
+本 skill 当前所有 Lens SDK 示例默认基于 `@lens-protocol/client@canary`。
+
+安装示例：
+
+```bash
+npm install @lens-protocol/client@canary
+```
+
+若使用其他版本，不应直接照抄本 skill 中的示例代码，必须先自行校验 API 差异。
+
 ## Configuration Rules
 
 1. `environment` 必须显式确定，不依赖隐式推断。

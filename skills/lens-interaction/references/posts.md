@@ -24,6 +24,8 @@
 3. 调用 `post(sessionClient, { contentUri })` 创建帖子。
 4. 处理链上操作结果并等待可读状态。
 
+SDK 版本前提请遵循 [configuration.md](./configuration.md) 中定义的约定。
+
 博客场景建议：
 
 - 对个人博客场景，默认推荐使用 `article` 作为 Post metadata 格式。
@@ -31,6 +33,11 @@
 - `image` 等其他格式可用于特定内容类型，但不作为博客文章的主路径。
 
 常见 metadata 写法（TypeScript）：
+
+说明：
+
+- 以下代码仅用于说明 metadata 结构。
+- 实际可用字段、辅助方法与包导出请以当前版本类型定义为准。
 
 ```ts
 import { textOnly } from "@lens-protocol/metadata";
@@ -99,6 +106,10 @@ type BlogArticleInput = {
 
 上传 metadata（TypeScript）：
 
+说明：
+
+- 以下代码仅用于说明上传流程形状，不保证逐字可运行。
+
 ```ts
 import { textOnly } from "@lens-protocol/metadata";
 import { storageClient } from "./storage-client";
@@ -116,6 +127,11 @@ const { uri: metadataUri } = await storageClient.uploadAsJson(metadata);
 - 产出的 `metadataUri` 作为 `post(..., { contentUri: uri(metadataUri) })` 的输入。
 
 参考代码（TypeScript）：
+
+说明：
+
+- 以下代码仅用于说明 `contentUri -> post()` 的调用路径。
+- 实际 `handleOperationWith` 参数要求、`WalletClient` 形状与返回类型请先对照 canary 版本类型定义验证。
 
 ```ts
 import { uri } from "@lens-protocol/client";
@@ -145,6 +161,11 @@ if (result.isErr()) throw result.error;
 
 React 参考代码：
 
+说明：
+
+- 以下代码仅用于说明单篇查询入口。
+- 实际 hook 导出与参数类型请以当前依赖版本为准。
+
 ```ts
 import { usePost, postId } from "@lens-protocol/react";
 
@@ -162,6 +183,11 @@ const { data, loading, error } = usePost({
 
 TypeScript 参考代码：
 
+说明：
+
+- 以下代码仅用于说明列表查询形状。
+- `PageSize`、过滤字段与返回类型请以当前 canary 版本的实际定义为准。
+
 ```ts
 import { evmAddress } from "@lens-protocol/client";
 import { fetchPosts } from "@lens-protocol/client/actions";
@@ -170,7 +196,7 @@ const result = await fetchPosts(client, {
   filter: {
     authors: evmAddress("0x1234..."),
   },
-  pageSize: PageSize.FIFTY,
+  pageSize: PageSize.Fifty,
 });
 
 if (result.isErr()) throw result.error;

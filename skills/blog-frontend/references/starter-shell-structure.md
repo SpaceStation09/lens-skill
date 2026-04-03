@@ -79,6 +79,10 @@ assets/starter-shell/
 3. `LensAuthProvider`
 4. `ThemeProvider`
 
+默认钱包方案接线请参考：
+
+1. [privy-integration.md](privy-integration.md)
+
 ## 默认页面
 
 至少包括：

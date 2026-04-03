@@ -13,6 +13,8 @@
 实现时以官方文档为准：  
 <https://lens.xyz/docs/protocol/authentication>
 
+SDK 版本前提请遵循 [configuration.md](./configuration.md) 中定义的约定。
+
 ## 身份类型
 
 Lens API 使用认证角色区分权限边界：
@@ -55,6 +57,11 @@ Lens API 使用认证角色区分权限边界：
 - `builder`：用于开发者角色登录，不需要 `app` 地址。
 
 参考代码（TypeScript，结构示意）：
+
+说明：
+
+- 以下代码仅用于说明调用形状与参数结构。
+- 实际字段名、方法归属与可选项请以 `@lens-protocol/client@canary` 的当前类型定义和官方文档为准。
 
 ```ts
 import { client } from "./client";
@@ -125,6 +132,11 @@ const authenticated = await client.login({
 
 参考代码（TypeScript）：
 
+说明：
+
+- 以下代码仅用于说明调用形状。
+- 实际初始化方式与方法归属请先对照 `@lens-protocol/client@canary` 的类型定义验证。
+
 ```ts
 import { PublicClient, mainnet } from "@lens-protocol/client";
 
@@ -152,6 +164,11 @@ const sessionClient = resumed.value;
 
 参考代码（TypeScript）：
 
+说明：
+
+- 以下代码仅用于说明登出动作的调用意图。
+- 实际方法归属请以当前 canary 版本的客户端类型定义为准。
+
 ```ts
 const result = await client.logout();
 if (result.isErr()) throw result.error;
@@ -168,6 +185,11 @@ if (result.isErr()) throw result.error;
 3. 若无历史记录，返回空值而非报错。
 
 参考代码（TypeScript）：
+
+说明：
+
+- 以下代码仅用于说明查询形状。
+- 实际字段名与方法签名请以当前 canary 版本的类型定义为准。
 
 ```ts
 import { evmAddress } from "@lens-protocol/client";
