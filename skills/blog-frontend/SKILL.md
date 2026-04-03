@@ -88,6 +88,16 @@ description: 为 Lens 原生个人博客提供官方前端 baseline。默认基�
    - 不承担应用级基础设施职责。
    - 若需要自行开发或替换 theme，请参考 [references/theme-development-guide.md](references/theme-development-guide.md)。
 
+## Starter Shell Usage
+
+使用 `starter-shell` 时遵守以下规则：
+
+1. 默认从 `assets/starter-shell/` 起步，而不是从空项目重新设计结构层。
+2. 优先复用它的页面结构、feature 边界、providers 与 `lens-interaction` 接线入口。
+3. 若需求主要是视觉定制，优先替换或开发 theme，而不是先改写 shell。
+4. 若目标是已有前端项目，可将 `starter-shell` 作为结构参考迁移，而不是要求逐文件照搬。
+5. 只有当需求明显突破官方 baseline 时，才扩大对 shell 的改动范围。
+
 ## Inputs
 
 本 skill 接收的输入应聚焦前端落地本身：
