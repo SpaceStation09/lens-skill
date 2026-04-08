@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ThemeFrame } from "../../skills/blog-frontend/assets/themes/default/templates/ThemeFrame";
+import { ThemeFrame } from "../theme/default/templates/ThemeFrame";
 import { useLensAuth } from "../providers/lens-auth-context";
 
 export default function HomePage() {

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { ComposeTemplate } from "../../../skills/blog-frontend/assets/themes/default/templates/ComposeTemplate";
+import { ComposeTemplate } from "../../theme/default/templates/ComposeTemplate";
 import { publishArticle } from "../../lib/lens/browser-client";
 import { useLensAuth } from "../../providers/lens-auth-context";
 

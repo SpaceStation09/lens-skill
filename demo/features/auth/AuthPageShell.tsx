@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthTemplate } from "../../../skills/blog-frontend/assets/themes/default/templates/AuthTemplate";
+import { AuthTemplate } from "../../theme/default/templates/AuthTemplate";
 import { createLensAccount, getAccountsAvailable } from "../../lib/lens/browser-client";
 import type { AccountView } from "../../lib/lens/contracts";
 import { useLensAuth } from "../../providers/lens-auth-context";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ProfileTemplate } from "../../../skills/blog-frontend/assets/themes/default/templates/ProfileTemplate";
+import { ProfileTemplate } from "../../theme/default/templates/ProfileTemplate";
 import type { AccountView, LensPage, PostView } from "../../lib/lens/contracts";
 import { getPostsByHandle, getProfileByHandle } from "../../lib/lens/browser-client";
 import { useLensAuth } from "../../providers/lens-auth-context";

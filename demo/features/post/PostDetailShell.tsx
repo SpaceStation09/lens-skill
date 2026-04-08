@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { PostTemplate } from "../../../skills/blog-frontend/assets/themes/default/templates/PostTemplate";
+import { PostTemplate } from "../../theme/default/templates/PostTemplate";
 import type { PostView } from "../../lib/lens/contracts";
 import { getPostById } from "../../lib/lens/browser-client";
 import { useLensAuth } from "../../providers/lens-auth-context";
