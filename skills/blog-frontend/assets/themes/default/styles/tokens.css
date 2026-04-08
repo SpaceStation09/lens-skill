@@ -1,11 +1,11 @@
 :root {
-  --theme-bg: #fbfbf9;
-  --theme-sidebar: #f0f0ec;
+  --theme-bg: #f7f7f7;
+  --theme-sidebar: #ececec;
   --theme-surface: #ffffff;
   --theme-ink: #121212;
-  --theme-muted: #767676;
-  --theme-faint: #b8b8b8;
-  --theme-border: #e4e4de;
+  --theme-muted: #6f6f6f;
+  --theme-faint: #b5b5b5;
+  --theme-border: #dddddd;
   --theme-accent: #101010;
   --theme-danger: #b42318;
   --theme-sidebar-width: 248px;

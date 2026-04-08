@@ -40,6 +40,10 @@ textarea {
   padding: 28px 22px 24px;
   background: var(--theme-sidebar);
   border-right: 1px solid var(--theme-border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .monolith-brand h1 {
@@ -70,6 +74,83 @@ textarea {
   gap: 18px;
 }
 
+.monolith-session {
+  margin: 18px 0 10px;
+  padding: 14px;
+  border: 1px solid var(--theme-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 246, 246, 0.96));
+  display: grid;
+  gap: 8px;
+}
+
+.monolith-session__kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.monolith-session__title {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--theme-ink);
+  font-weight: 700;
+}
+
+.monolith-session__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--theme-border);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--theme-muted);
+}
+
+.monolith-session__row strong {
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+
+.monolith-session__row strong.is-ok {
+  color: #1a6f39;
+}
+
+.monolith-session__row strong.is-off {
+  color: var(--theme-muted);
+}
+
+.monolith-session__value {
+  margin: -2px 0 2px;
+  display: inline-block;
+  padding: 3px 7px;
+  border: 1px solid var(--theme-border);
+  background: #f2f2f2;
+  font-size: 0.74rem;
+  color: var(--theme-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.sidebar-account-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sidebar-account-actions .ghost-button {
+  width: 100%;
+  text-align: left;
+}
+
 .monolith-nav a,
 .monolith-sidebar__footer a {
   font-size: 0.95rem;
@@ -81,6 +162,7 @@ textarea {
 
 .monolith-main {
   padding: 20px 40px 56px;
+  min-height: 100vh;
 }
 
 .monolith-main--centered {
@@ -289,6 +371,63 @@ textarea {
   margin-top: 26px;
 }
 
+.article-template__body h1,
+.article-template__body h2,
+.article-template__body h3 {
+  margin: 34px 0 14px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.article-template__body h1 {
+  font-size: 2rem;
+}
+
+.article-template__body h2 {
+  font-size: 1.6rem;
+}
+
+.article-template__body h3 {
+  font-size: 1.3rem;
+}
+
+.article-template__body ul,
+.article-template__body ol {
+  margin: 18px 0;
+  padding-left: 24px;
+}
+
+.article-template__body li + li {
+  margin-top: 8px;
+}
+
+.article-template__body blockquote {
+  margin: 22px 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--theme-border);
+  color: var(--theme-muted);
+}
+
+.article-template__body code {
+  padding: 2px 6px;
+  background: #f0f0f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.article-template__body pre {
+  margin: 18px 0;
+  padding: 14px;
+  overflow-x: auto;
+  border: 1px solid var(--theme-border);
+  background: #f7f7f7;
+}
+
+.article-template__body pre code {
+  padding: 0;
+  background: transparent;
+}
+
 .article-template__tags {
   display: flex;
   gap: 12px;
@@ -386,6 +525,41 @@ textarea {
   line-height: 1.7;
 }
 
+.persona-card__wallet {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: 0.86rem;
+}
+
+.persona-card label {
+  display: block;
+  margin: 14px 0 6px;
+  color: var(--theme-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+}
+
+.persona-card input,
+.persona-card select {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.state-block {
+  padding: 16px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  color: var(--theme-muted);
+}
+
+.state-block--error {
+  color: var(--theme-danger);
+}
+
 .compose-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
@@ -461,18 +635,6 @@ textarea {
   margin-top: 20px;
 }
 
-.hero-upload-surface {
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-  margin-top: 28px;
-  border: 1px dashed var(--theme-border);
-  color: var(--theme-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
-}
-
 .compose-settings {
   padding: 20px 18px;
   border-left: 1px solid var(--theme-border);
@@ -496,6 +658,9 @@ textarea {
 
   .monolith-sidebar {
     gap: 24px;
+    position: static;
+    height: auto;
+    overflow: visible;
     border-right: 0;
     border-bottom: 1px solid var(--theme-border);
   }
@@ -510,5 +675,4 @@ textarea {
     border-left: 0;
     border-top: 1px solid var(--theme-border);
   }
-}
 }

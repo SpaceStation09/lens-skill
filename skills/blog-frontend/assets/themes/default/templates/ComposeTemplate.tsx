@@ -1,33 +1,67 @@
-export function ComposeTemplate() {
-  return (
-    <section className="monolith-frame">
-      <aside className="monolith-sidebar">
-        <div className="monolith-brand">
-          <h1>The Monolith</h1>
-          <p>Purity through Precision</p>
-        </div>
-        <nav className="monolith-nav" aria-label="Primary">
-          <a href="#">Home</a>
-          <a className="is-active" href="#">
-            Archives
-          </a>
-          <a href="#">Tags</a>
-          <a href="#">About</a>
-        </nav>
-        <div className="monolith-sidebar__footer">
-          <a href="#">GitHub</a>
-          <a href="#">RSS</a>
-        </div>
-      </aside>
+import { ThemeFrame } from "./ThemeFrame";
 
-      <main className="monolith-main monolith-main--compose">
+export function ComposeTemplate({
+  title,
+  content,
+  tags,
+  feedback,
+  onTitleChange,
+  onContentChange,
+  onTagsChange,
+  onSubmit,
+  publishDate,
+  profileHref,
+  connectedWallet,
+  walletChecking,
+  lensHandle,
+  lensAccountAddress,
+  canShowAccountActions,
+  onLogoutLens,
+  onDisconnectWallet,
+}: {
+  title: string;
+  content: string;
+  tags: string;
+  feedback: string | null;
+  onTitleChange: (value: string) => void;
+  onContentChange: (value: string) => void;
+  onTagsChange: (value: string) => void;
+  onSubmit: (event: any) => void;
+  publishDate: string;
+  profileHref: string;
+  connectedWallet: string | null;
+  walletChecking: boolean;
+  lensHandle: string | null;
+  lensAccountAddress: string | null;
+  canShowAccountActions: boolean;
+  onLogoutLens: () => void;
+  onDisconnectWallet: () => void;
+}) {
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+
+  return (
+    <ThemeFrame
+      mainClassName="monolith-main--compose"
+      nav={[
+        { label: "Home", href: "/" },
+        { label: "Write", href: "/compose", active: true },
+        { label: "Profile", href: profileHref },
+      ]}
+      accountActions={{
+        canShow: canShowAccountActions,
+        onLogoutLens,
+        onDisconnectWallet,
+      }}
+      connectedWallet={connectedWallet}
+      walletChecking={walletChecking}
+      lensHandle={lensHandle}
+      lensAccountAddress={lensAccountAddress}
+    >
+      <form onSubmit={onSubmit}>
         <header className="compose-topbar">
-          <p className="theme-kicker">Draft / New Entry</p>
+          <p className="theme-kicker">Write Article</p>
           <div className="compose-topbar__actions">
-            <button type="button" className="ghost-button">
-              Save Draft
-            </button>
-            <button type="button" className="solid-button">
+            <button type="submit" className="solid-button">
               Publish
             </button>
           </div>
@@ -38,17 +72,23 @@ export function ComposeTemplate() {
             <input
               aria-label="Entry title"
               className="compose-title-input"
-              defaultValue="Title of the Monolith Entry"
+              value={title}
+              onChange={(event) => onTitleChange(event.target.value)}
+              placeholder="Enter your article title"
             />
 
             <div className="compose-meta-grid">
               <label>
                 <span>Category</span>
-                <input defaultValue="Design Philosophy" />
+                <input defaultValue="Article" />
               </label>
               <label>
                 <span>Tags</span>
-                <input defaultValue="minimalism, editorial, precision" />
+                <input
+                  value={tags}
+                  onChange={(event) => onTagsChange(event.target.value)}
+                  placeholder="lens, web3, product"
+                />
               </label>
             </div>
 
@@ -61,26 +101,26 @@ export function ComposeTemplate() {
                 <span>List</span>
               </div>
               <textarea
-                defaultValue="Start documenting with precision..."
+                value={content}
+                onChange={(event) => onContentChange(event.target.value)}
                 rows={16}
+                placeholder="Start documenting with precision..."
               />
               <div className="editor-stats">
-                <span>Words: 0</span>
-                <span>Chars: 0</span>
-                <span>Reading: 0m</span>
+                <span>Words: {words}</span>
+                <span>Chars: {content.length}</span>
+                <span>Reading: {Math.max(1, Math.ceil(words / 200))}m</span>
               </div>
             </div>
 
-            <div className="hero-upload-surface" aria-hidden="true">
-              <span>Add hero landscape</span>
-            </div>
+            {feedback ? <p className="state-block state-block--error">{feedback}</p> : null}
           </div>
 
           <aside className="compose-settings">
             <h2>Post Settings</h2>
             <div className="settings-field">
               <span>Publish date</span>
-              <p>August 24, 2024</p>
+              <p>{publishDate}</p>
             </div>
             <div className="settings-field">
               <span>Visibility</span>
@@ -88,11 +128,11 @@ export function ComposeTemplate() {
             </div>
             <div className="settings-field">
               <span>Excerpt</span>
-              <p>Summary for home page...</p>
+              <p>{content.slice(0, 60) || "A short summary will appear here."}</p>
             </div>
           </aside>
         </section>
-      </main>
-    </section>
+      </form>
+    </ThemeFrame>
   );
 }

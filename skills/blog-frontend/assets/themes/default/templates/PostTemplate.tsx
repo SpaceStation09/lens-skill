@@ -1,40 +1,64 @@
 import type { PostView } from "../../../starter-shell/lib/lens/contracts";
+import { ThemeFrame } from "./ThemeFrame";
 
 function estimateWordCount(content?: string | null) {
   if (!content) return 0;
   return content.trim().split(/\s+/).filter(Boolean).length;
 }
 
-export function PostTemplate({ post }: { post: PostView }) {
-  const wordCount = estimateWordCount(post.content);
+export function PostTemplate({
+  post,
+  loading,
+  error,
+  profileHref,
+  connectedWallet,
+  walletChecking,
+  lensHandle,
+  lensAccountAddress,
+  canShowAccountActions,
+  onLogoutLens,
+  onDisconnectWallet,
+  contentNode,
+}: {
+  post: PostView | null;
+  loading?: boolean;
+  error?: string | null;
+  profileHref: string;
+  connectedWallet: string | null;
+  walletChecking: boolean;
+  lensHandle: string | null;
+  lensAccountAddress: string | null;
+  canShowAccountActions: boolean;
+  onLogoutLens: () => void;
+  onDisconnectWallet: () => void;
+  contentNode?: any;
+}) {
+  const wordCount = estimateWordCount(post?.content);
 
   return (
-    <section className="monolith-frame">
-      <aside className="monolith-sidebar">
-        <div className="monolith-brand">
-          <h1>The Monolith</h1>
-          <p>Purity through Precision</p>
-        </div>
-        <nav className="monolith-nav" aria-label="Primary">
-          <a href="#">Home</a>
-          <a className="is-active" href="#">
-            Archives
-          </a>
-          <a href="#">Tags</a>
-          <a href="#">About</a>
-        </nav>
-        <div className="monolith-sidebar__footer">
-          <a href="#">GitHub</a>
-          <a href="#">RSS</a>
-        </div>
-      </aside>
-
-      <main className="monolith-main monolith-main--article">
+    <ThemeFrame
+      mainClassName="monolith-main--article"
+      nav={[
+        { label: "Home", href: "/" },
+        { label: "Write", href: "/compose" },
+        { label: "Profile", href: profileHref, active: true },
+      ]}
+      accountActions={{
+        canShow: canShowAccountActions,
+        onLogoutLens,
+        onDisconnectWallet,
+      }}
+      connectedWallet={connectedWallet}
+      walletChecking={walletChecking}
+      lensHandle={lensHandle}
+      lensAccountAddress={lensAccountAddress}
+    >
+      {loading ? <p className="state-block">Loading post...</p> : null}
+      {error ? <p className="state-block state-block--error">{error}</p> : null}
+      {!loading && !error && post ? (
         <article className="article-template">
           {post.tags?.[0] ? <p className="theme-chip">{post.tags[0]}</p> : null}
-          <h1 className="article-template__title">
-            {post.title ?? "Untitled post"}
-          </h1>
+          <h1 className="article-template__title">{post.title ?? "Untitled article"}</h1>
           <div className="article-template__meta">
             {post.createdAt ? <span>{post.createdAt}</span> : null}
             <span>{wordCount} words</span>
@@ -43,9 +67,7 @@ export function PostTemplate({ post }: { post: PostView }) {
           <div className="article-template__hero" aria-hidden="true" />
 
           <div className="article-template__body">
-            {post.content?.split("\n\n").filter(Boolean).map((paragraph, index) => (
-              <p key={`${post.id}-${index}`}>{paragraph}</p>
-            ))}
+            {contentNode ?? <p>{post.content}</p>}
           </div>
 
           {post.tags?.length ? (
@@ -59,7 +81,7 @@ export function PostTemplate({ post }: { post: PostView }) {
             </footer>
           ) : null}
         </article>
-      </main>
-    </section>
+      ) : null}
+    </ThemeFrame>
   );
 }
