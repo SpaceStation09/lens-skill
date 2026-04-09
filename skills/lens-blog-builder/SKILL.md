@@ -45,7 +45,7 @@ description: 作为 Lens 博客体系的入口 skill，负责确认会影响实�
 
 ## Implementation Path Questions
 
-优先确认以下会影响实现路径的决策：
+在开始开发之前，需要优先确认以下会影响实现路径的决策，完成下面的需求访谈：
 
 1. Lens 环境
    - 使用 `testnet` 还是 `mainnet`

@@ -1,9 +1,7 @@
-import { PostDetailShell } from "../../../features/post/PostDetailShell";
+import { PostDetailShell } from "@/features/post/PostDetailShell";
 
-export default function PostPage({
-  params,
-}: {
-  params: { postId: string };
-}) {
-  return <PostDetailShell postId={params.postId} />;
+export default async function PostPage({ params }: { params: Promise<{ postId: string }> }) {
+  const { postId } = await params;
+
+  return <PostDetailShell postId={postId} />;
 }

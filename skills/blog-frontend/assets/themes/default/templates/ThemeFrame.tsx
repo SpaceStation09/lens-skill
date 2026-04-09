@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type ThemeNavItem = {
   label: string;
   href: string;
@@ -9,10 +11,10 @@ export type ThemeFooterItem = {
   href: string;
 };
 
-export type ThemeAccountActions = {
-  canShow: boolean;
-  onLogoutLens: () => void;
-  onDisconnectWallet: () => void;
+export type ThemeFooterAction = {
+  label: string;
+  onClick: () => void;
+  variant?: "ghost" | "solid";
 };
 
 export function ThemeFrame({
@@ -20,11 +22,8 @@ export function ThemeFrame({
   brandTagline = "Personal Publishing on Lens",
   nav,
   footer,
-  accountActions,
-  connectedWallet,
-  walletChecking,
-  lensHandle,
-  lensAccountAddress,
+  sidebarPanel,
+  footerActions,
   mainClassName,
   children,
 }: {
@@ -32,23 +31,11 @@ export function ThemeFrame({
   brandTagline?: string;
   nav: ThemeNavItem[];
   footer?: ThemeFooterItem[];
-  accountActions?: ThemeAccountActions;
-  connectedWallet?: string | null;
-  walletChecking?: boolean;
-  lensHandle?: string | null;
-  lensAccountAddress?: string | null;
+  sidebarPanel?: ReactNode;
+  footerActions?: ThemeFooterAction[];
   mainClassName?: string;
-  children: any;
+  children: ReactNode;
 }) {
-  function formatAddress(value?: string | null) {
-    if (!value) return null;
-    if (value.length <= 14) return value;
-    return `${value.slice(0, 6)}...${value.slice(-4)}`;
-  }
-
-  const walletShort = formatAddress(connectedWallet);
-  const accountShort = formatAddress(lensAccountAddress);
-
   return (
     <section className="monolith-frame">
       <aside className="monolith-sidebar">
@@ -57,34 +44,7 @@ export function ThemeFrame({
           <p>{brandTagline}</p>
         </div>
 
-        <section className="monolith-session" aria-label="Lens session status">
-          <p className="monolith-session__kicker">Current Session</p>
-          <p className="monolith-session__title">{lensHandle ? `@${lensHandle}` : "Guest"}</p>
-
-          <div className="monolith-session__row">
-            <span>Wallet</span>
-            <strong className={walletChecking ? "is-off" : connectedWallet ? "is-ok" : "is-off"}>
-              {walletChecking ? "Checking wallet..." : connectedWallet ? "Connected" : "Disconnected"}
-            </strong>
-          </div>
-          {connectedWallet && !walletChecking ? (
-            <p className="monolith-session__value" title={connectedWallet}>
-              {walletShort}
-            </p>
-          ) : null}
-
-          <div className="monolith-session__row">
-            <span>Lens</span>
-            <strong className={lensHandle ? "is-ok" : "is-off"}>
-              {lensHandle ? "Logged in" : "Not logged in"}
-            </strong>
-          </div>
-          {lensAccountAddress ? (
-            <p className="monolith-session__value" title={lensAccountAddress}>
-              {accountShort}
-            </p>
-          ) : null}
-        </section>
+        {sidebarPanel ? <div className="monolith-sidebar__panel">{sidebarPanel}</div> : null}
 
         <nav className="monolith-nav" aria-label="Primary">
           {nav.map((item) => (
@@ -100,14 +60,18 @@ export function ThemeFrame({
               {item.label}
             </a>
           ))}
-          {accountActions?.canShow ? (
-            <div className="sidebar-account-actions">
-              <button type="button" className="ghost-button" onClick={accountActions.onLogoutLens}>
-                Logout Lens
-              </button>
-              <button type="button" className="ghost-button" onClick={accountActions.onDisconnectWallet}>
-                Disconnect Wallet
-              </button>
+          {footerActions?.length ? (
+            <div className="monolith-sidebar__actions">
+              {footerActions.map((action) => (
+                <button
+                  key={action.label}
+                  type="button"
+                  className={action.variant === "solid" ? "solid-button" : "ghost-button"}
+                  onClick={action.onClick}
+                >
+                  {action.label}
+                </button>
+              ))}
             </div>
           ) : null}
         </div>

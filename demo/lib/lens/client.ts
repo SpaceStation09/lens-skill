@@ -1,24 +1,34 @@
-export type PublishArticleInput = {
-  title: string;
-  content: string;
-  tags?: string[];
-};
+"use client";
 
-// This module is intentionally thin. Wire concrete calls through lens-interaction.
-export const lensClientContract = {
-  auth: {
-    connectWallet: "Connect wallet and expose current address.",
-    loginOrCreate: "Create or login Lens account for the connected wallet.",
-    currentSession: "Restore current auth session from storage.",
-    logout: "Clear active session.",
-    getLastLoggedInAccount: "Resolve the latest account from auth history.",
-  },
-  profile: {
-    getByHandle: "Fetch AccountView for a profile handle.",
-    getPostsByHandle: "Fetch LensPage<PostView> for the profile feed.",
-  },
-  post: {
-    getById: "Fetch PostView for the post detail route.",
-    publishArticle: "Publish article metadata through lens-interaction.",
-  },
-} as const;
+import type { IStorageProvider } from "@lens-protocol/client";
+import { PublicClient, mainnet, testnet } from "@lens-protocol/client";
+import { lensRuntimeConfig } from "@/lib/lens/config";
+
+let publicClient: PublicClient | null = null;
+
+function createBrowserStorage(): IStorageProvider {
+  return {
+    getItem(key) {
+      return window.localStorage.getItem(key);
+    },
+    setItem(key, value) {
+      window.localStorage.setItem(key, value);
+    },
+    removeItem(key) {
+      window.localStorage.removeItem(key);
+    },
+  };
+}
+
+export function getLensPublicClient() {
+  if (publicClient) {
+    return publicClient;
+  }
+
+  publicClient = PublicClient.create({
+    environment: lensRuntimeConfig.environment === "mainnet" ? mainnet : testnet,
+    storage: createBrowserStorage(),
+  });
+
+  return publicClient;
+}

@@ -1,16 +1,17 @@
-import type { AccountView, PostView } from "../../../starter-shell/lib/lens/contracts";
-import { ThemeFrame } from "./ThemeFrame";
+import type { ReactNode } from "react";
+import type { ThemePostView, ThemeProfileView } from "./models";
+import { ThemeFrame, type ThemeFooterAction } from "./ThemeFrame";
 
-function buildHeroLabel(profile: AccountView) {
+function buildHeroLabel(profile: ThemeProfileView) {
   if (profile.username) return `@${profile.username}`;
   return profile.address;
 }
 
-function buildStatValue(posts: PostView[]) {
+function buildStatValue(posts: ThemePostView[]) {
   return String(posts.length).padStart(2, "0");
 }
 
-function buildExcerpt(post: PostView) {
+function buildExcerpt(post: ThemePostView) {
   const content = post.content?.trim();
   if (!content) return "No summary available.";
   return content.length > 160 ? `${content.slice(0, 157)}...` : content;
@@ -23,27 +24,17 @@ export function ProfileTemplate({
   error,
   buildPostHref,
   profileHref,
-  connectedWallet,
-  walletChecking,
-  lensHandle,
-  lensAccountAddress,
-  canShowAccountActions,
-  onLogoutLens,
-  onDisconnectWallet,
+  sidebarPanel,
+  footerActions,
 }: {
-  profile: AccountView | null;
-  posts: PostView[];
+  profile: ThemeProfileView | null;
+  posts: ThemePostView[];
   loading?: boolean;
   error?: string | null;
-  buildPostHref?: (post: PostView) => string;
+  buildPostHref?: (post: ThemePostView) => string;
   profileHref: string;
-  connectedWallet: string | null;
-  walletChecking: boolean;
-  lensHandle: string | null;
-  lensAccountAddress: string | null;
-  canShowAccountActions: boolean;
-  onLogoutLens: () => void;
-  onDisconnectWallet: () => void;
+  sidebarPanel?: ReactNode;
+  footerActions?: ThemeFooterAction[];
 }) {
   return (
     <ThemeFrame
@@ -52,15 +43,8 @@ export function ProfileTemplate({
         { label: "Write", href: "/compose" },
         { label: "Profile", href: profileHref },
       ]}
-      accountActions={{
-        canShow: canShowAccountActions,
-        onLogoutLens,
-        onDisconnectWallet,
-      }}
-      connectedWallet={connectedWallet}
-      walletChecking={walletChecking}
-      lensHandle={lensHandle}
-      lensAccountAddress={lensAccountAddress}
+      sidebarPanel={sidebarPanel}
+      footerActions={footerActions}
     >
       {loading ? <p className="state-block">Loading profile...</p> : null}
       {error ? <p className="state-block state-block--error">{error}</p> : null}

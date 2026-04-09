@@ -1,5 +1,6 @@
-import type { PostView } from "../../../starter-shell/lib/lens/contracts";
-import { ThemeFrame } from "./ThemeFrame";
+import type { ReactNode } from "react";
+import type { ThemePostView } from "./models";
+import { ThemeFrame, type ThemeFooterAction } from "./ThemeFrame";
 
 function estimateWordCount(content?: string | null) {
   if (!content) return 0;
@@ -11,27 +12,17 @@ export function PostTemplate({
   loading,
   error,
   profileHref,
-  connectedWallet,
-  walletChecking,
-  lensHandle,
-  lensAccountAddress,
-  canShowAccountActions,
-  onLogoutLens,
-  onDisconnectWallet,
+  sidebarPanel,
+  footerActions,
   contentNode,
 }: {
-  post: PostView | null;
+  post: ThemePostView | null;
   loading?: boolean;
   error?: string | null;
   profileHref: string;
-  connectedWallet: string | null;
-  walletChecking: boolean;
-  lensHandle: string | null;
-  lensAccountAddress: string | null;
-  canShowAccountActions: boolean;
-  onLogoutLens: () => void;
-  onDisconnectWallet: () => void;
-  contentNode?: any;
+  sidebarPanel?: ReactNode;
+  footerActions?: ThemeFooterAction[];
+  contentNode?: ReactNode;
 }) {
   const wordCount = estimateWordCount(post?.content);
 
@@ -43,15 +34,8 @@ export function PostTemplate({
         { label: "Write", href: "/compose" },
         { label: "Profile", href: profileHref, active: true },
       ]}
-      accountActions={{
-        canShow: canShowAccountActions,
-        onLogoutLens,
-        onDisconnectWallet,
-      }}
-      connectedWallet={connectedWallet}
-      walletChecking={walletChecking}
-      lensHandle={lensHandle}
-      lensAccountAddress={lensAccountAddress}
+      sidebarPanel={sidebarPanel}
+      footerActions={footerActions}
     >
       {loading ? <p className="state-block">Loading post...</p> : null}
       {error ? <p className="state-block state-block--error">{error}</p> : null}

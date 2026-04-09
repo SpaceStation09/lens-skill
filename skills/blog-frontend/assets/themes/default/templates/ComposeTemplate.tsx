@@ -1,4 +1,5 @@
-import { ThemeFrame } from "./ThemeFrame";
+import type { FormEvent, ReactNode } from "react";
+import { ThemeFrame, type ThemeFooterAction } from "./ThemeFrame";
 
 export function ComposeTemplate({
   title,
@@ -9,15 +10,10 @@ export function ComposeTemplate({
   onContentChange,
   onTagsChange,
   onSubmit,
-  publishDate,
   profileHref,
-  connectedWallet,
-  walletChecking,
-  lensHandle,
-  lensAccountAddress,
-  canShowAccountActions,
-  onLogoutLens,
-  onDisconnectWallet,
+  sidebarPanel,
+  footerActions,
+  sidePanel,
 }: {
   title: string;
   content: string;
@@ -26,16 +22,11 @@ export function ComposeTemplate({
   onTitleChange: (value: string) => void;
   onContentChange: (value: string) => void;
   onTagsChange: (value: string) => void;
-  onSubmit: (event: any) => void;
-  publishDate: string;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   profileHref: string;
-  connectedWallet: string | null;
-  walletChecking: boolean;
-  lensHandle: string | null;
-  lensAccountAddress: string | null;
-  canShowAccountActions: boolean;
-  onLogoutLens: () => void;
-  onDisconnectWallet: () => void;
+  sidebarPanel?: ReactNode;
+  footerActions?: ThemeFooterAction[];
+  sidePanel?: ReactNode;
 }) {
   const words = content.trim().split(/\s+/).filter(Boolean).length;
 
@@ -47,19 +38,12 @@ export function ComposeTemplate({
         { label: "Write", href: "/compose", active: true },
         { label: "Profile", href: profileHref },
       ]}
-      accountActions={{
-        canShow: canShowAccountActions,
-        onLogoutLens,
-        onDisconnectWallet,
-      }}
-      connectedWallet={connectedWallet}
-      walletChecking={walletChecking}
-      lensHandle={lensHandle}
-      lensAccountAddress={lensAccountAddress}
+      sidebarPanel={sidebarPanel}
+      footerActions={footerActions}
     >
       <form onSubmit={onSubmit}>
         <header className="compose-topbar">
-          <p className="theme-kicker">Write Article</p>
+          <p className="theme-kicker">Editor</p>
           <div className="compose-topbar__actions">
             <button type="submit" className="solid-button">
               Publish
@@ -67,7 +51,7 @@ export function ComposeTemplate({
           </div>
         </header>
 
-        <section className="compose-layout">
+        <section className={sidePanel ? "compose-layout compose-layout--with-sidebar" : "compose-layout"}>
           <div className="compose-editor">
             <input
               aria-label="Entry title"
@@ -79,15 +63,11 @@ export function ComposeTemplate({
 
             <div className="compose-meta-grid">
               <label>
-                <span>Category</span>
-                <input defaultValue="Article" />
-              </label>
-              <label>
                 <span>Tags</span>
                 <input
                   value={tags}
                   onChange={(event) => onTagsChange(event.target.value)}
-                  placeholder="lens, web3, product"
+                  placeholder="design, writing, notes"
                 />
               </label>
             </div>
@@ -116,21 +96,7 @@ export function ComposeTemplate({
             {feedback ? <p className="state-block state-block--error">{feedback}</p> : null}
           </div>
 
-          <aside className="compose-settings">
-            <h2>Post Settings</h2>
-            <div className="settings-field">
-              <span>Publish date</span>
-              <p>{publishDate}</p>
-            </div>
-            <div className="settings-field">
-              <span>Visibility</span>
-              <p>Public</p>
-            </div>
-            <div className="settings-field">
-              <span>Excerpt</span>
-              <p>{content.slice(0, 60) || "A short summary will appear here."}</p>
-            </div>
-          </aside>
+          {sidePanel ? <aside className="compose-sidebar">{sidePanel}</aside> : null}
         </section>
       </form>
     </ThemeFrame>

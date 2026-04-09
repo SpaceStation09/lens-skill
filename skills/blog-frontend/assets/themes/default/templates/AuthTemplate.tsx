@@ -1,4 +1,5 @@
-import { ThemeFrame } from "./ThemeFrame";
+import type { ReactNode } from "react";
+import { ThemeFrame, type ThemeFooterAction } from "./ThemeFrame";
 
 export type AuthAccountOption = {
   address: string;
@@ -6,7 +7,7 @@ export type AuthAccountOption = {
 };
 
 export function AuthTemplate({
-  connectedWallet,
+  connectedAccount,
   sessionLabel,
   handle,
   selectedAccount,
@@ -22,13 +23,10 @@ export function AuthTemplate({
   onHandleChange,
   onSelectedAccountChange,
   profileHref,
-  walletChecking,
-  lensHandle,
-  lensAccountAddress,
-  onLogoutLens,
-  onDisconnectWallet,
+  sidebarPanel,
+  footerActions,
 }: {
-  connectedWallet: string | null;
+  connectedAccount: string | null;
   sessionLabel: string;
   handle: string;
   selectedAccount: string;
@@ -44,11 +42,8 @@ export function AuthTemplate({
   onHandleChange: (value: string) => void;
   onSelectedAccountChange: (value: string) => void;
   profileHref: string;
-  walletChecking: boolean;
-  lensHandle: string | null;
-  lensAccountAddress: string | null;
-  onLogoutLens: () => void;
-  onDisconnectWallet: () => void;
+  sidebarPanel?: ReactNode;
+  footerActions?: ThemeFooterAction[];
 }) {
   return (
     <ThemeFrame
@@ -57,27 +52,20 @@ export function AuthTemplate({
         { label: "Home", href: "/", active: true },
         { label: "Profile", href: profileHref },
       ]}
-      accountActions={{
-        canShow: isAuthenticated,
-        onLogoutLens,
-        onDisconnectWallet,
-      }}
-      connectedWallet={connectedWallet}
-      walletChecking={walletChecking}
-      lensHandle={lensHandle}
-      lensAccountAddress={lensAccountAddress}
+      sidebarPanel={sidebarPanel}
+      footerActions={isAuthenticated ? footerActions : undefined}
     >
       <section className="auth-hero">
-        <p className="theme-kicker">Authentication</p>
-        <h2>Sign In To Lens Blog</h2>
-        <p>Connect wallet, choose an existing Lens account, or create a new one to continue.</p>
-        {connectedWallet ? (
+        <p className="theme-kicker">Access</p>
+        <h2>Sign In To Your Publishing Space</h2>
+        <p>Connect an account, select an available profile, or create a new profile to continue.</p>
+        {connectedAccount ? (
           <button type="button" className="solid-button auth-hero__button" disabled>
-            Wallet Connected
+            Account Connected
           </button>
         ) : (
           <button type="button" className="solid-button auth-hero__button" onClick={onConnect}>
-            Connect Wallet With Privy
+            Connect Account
           </button>
         )}
         <small>{sessionLabel}</small>
@@ -85,17 +73,17 @@ export function AuthTemplate({
 
       <section className="persona-grid" aria-label="Persona selection">
         <article className="persona-card">
-          <h3>Select Account</h3>
+          <h3>Select Profile</h3>
           <p className="persona-card__wallet">
-            {connectedWallet ? connectedWallet : "Connect wallet first to load account list."}
+            {connectedAccount ? connectedAccount : "Connect an account first to load available profiles."}
           </p>
-          <label htmlFor="account">Available accounts</label>
+          <label htmlFor="account">Available profiles</label>
           <select
             id="account"
             value={selectedAccount}
             onChange={(event) => onSelectedAccountChange(event.target.value)}
           >
-            <option value="">Create/Login with new handle</option>
+            <option value="">Continue with a new handle</option>
             {availableAccounts.map((account) => (
               <option key={account.address} value={account.address}>
                 {account.label}
@@ -103,14 +91,14 @@ export function AuthTemplate({
             ))}
           </select>
           <button type="button" className="solid-button" onClick={onLogin}>
-            Sign In With Selected Account
+            Continue With Selected Profile
           </button>
-          {accountsLoading ? <p>Loading available Lens accounts...</p> : null}
+          {accountsLoading ? <p>Loading available profiles...</p> : null}
         </article>
 
         <article className="persona-card">
-          <h3>Create Lens Account</h3>
-          <p>Reserve a handle and create a new Lens identity from this wallet.</p>
+          <h3>Create Profile</h3>
+          <p>Reserve a handle and create a new publishing profile from the connected account.</p>
           <label htmlFor="handle">Handle</label>
           <input
             id="handle"
@@ -118,17 +106,17 @@ export function AuthTemplate({
             onChange={(event) => onHandleChange(event.target.value)}
             placeholder="demo"
           />
-          <button type="button" className="solid-button" disabled={creating || !connectedWallet} onClick={onCreate}>
-            {creating ? "Creating..." : "Create Lens account"}
+          <button type="button" className="solid-button" disabled={creating || !connectedAccount} onClick={onCreate}>
+            {creating ? "Creating..." : "Create Profile"}
           </button>
           {createFeedback ? <p>{createFeedback}</p> : null}
         </article>
 
         <article className="persona-card persona-card--ghost">
           {isAuthenticated ? (
-            <p>Use sidebar actions to logout Lens or disconnect wallet.</p>
+            <p>Use the sidebar actions to manage the current session.</p>
           ) : (
-            <p>{error ?? "After login you will be redirected to your profile."}</p>
+            <p>{error ?? "After sign in you will be redirected to your profile."}</p>
           )}
         </article>
       </section>

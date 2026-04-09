@@ -24,13 +24,6 @@ export type LensPage<T> = {
   };
 };
 
-export type AuthSessionView = {
-  authenticationId: string;
-  accountAddress?: string | null;
-  app?: string | null;
-  handle?: string | null;
-};
-
 export type MetadataAttributeView = {
   key: string;
   type: string;
@@ -45,6 +38,12 @@ export type AccountView = {
   picture?: string | null;
   coverPicture?: string | null;
   attributes?: MetadataAttributeView[] | null;
+};
+
+export type AuthSessionView = {
+  authenticationId: string;
+  accountAddress?: string | null;
+  app?: string | null;
 };
 
 export type PostView = {

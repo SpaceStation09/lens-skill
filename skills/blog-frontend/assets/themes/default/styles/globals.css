@@ -74,7 +74,7 @@ textarea {
   gap: 18px;
 }
 
-.monolith-session {
+.monolith-sidebar__panel {
   margin: 18px 0 10px;
   padding: 14px;
   border: 1px solid var(--theme-border);
@@ -83,7 +83,7 @@ textarea {
   gap: 8px;
 }
 
-.monolith-session__kicker {
+.sidebar-panel__eyebrow {
   margin: 0;
   font-size: 0.62rem;
   color: var(--theme-muted);
@@ -91,7 +91,7 @@ textarea {
   letter-spacing: 0.16em;
 }
 
-.monolith-session__title {
+.sidebar-panel__title {
   margin: 0;
   font-size: 1rem;
   letter-spacing: 0;
@@ -100,7 +100,7 @@ textarea {
   font-weight: 700;
 }
 
-.monolith-session__row {
+.sidebar-panel__row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -113,21 +113,21 @@ textarea {
   color: var(--theme-muted);
 }
 
-.monolith-session__row strong {
+.sidebar-panel__row strong {
   font-size: 0.64rem;
   letter-spacing: 0.12em;
   font-weight: 700;
 }
 
-.monolith-session__row strong.is-ok {
+.sidebar-panel__row strong.is-ok {
   color: #1a6f39;
 }
 
-.monolith-session__row strong.is-off {
+.sidebar-panel__row strong.is-off {
   color: var(--theme-muted);
 }
 
-.monolith-session__value {
+.sidebar-panel__value {
   margin: -2px 0 2px;
   display: inline-block;
   padding: 3px 7px;
@@ -140,13 +140,14 @@ textarea {
   text-transform: none;
 }
 
-.sidebar-account-actions {
+.monolith-sidebar__actions {
   display: grid;
   gap: 8px;
   margin-top: 8px;
 }
 
-.sidebar-account-actions .ghost-button {
+.monolith-sidebar__actions .ghost-button,
+.monolith-sidebar__actions .solid-button {
   width: 100%;
   text-align: left;
 }
@@ -562,6 +563,9 @@ textarea {
 
 .compose-layout {
   display: grid;
+}
+
+.compose-layout--with-sidebar {
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 32px;
 }
@@ -585,13 +589,13 @@ textarea {
 
 .compose-meta-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   margin: 24px 0 28px;
 }
 
 .compose-meta-grid label span,
-.settings-field span {
+.compose-sidebar__label {
   display: block;
   margin-bottom: 8px;
   color: var(--theme-muted);
@@ -601,7 +605,7 @@ textarea {
 }
 
 .compose-meta-grid input,
-.settings-field p {
+.compose-sidebar__value {
   padding: 14px 12px;
   border: 1px solid var(--theme-border);
   background: rgba(255, 255, 255, 0.7);
@@ -635,19 +639,19 @@ textarea {
   margin-top: 20px;
 }
 
-.compose-settings {
+.compose-sidebar {
   padding: 20px 18px;
   border-left: 1px solid var(--theme-border);
 }
 
-.compose-settings h2 {
+.compose-sidebar h2 {
   margin: 0 0 22px;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
 }
 
-.settings-field + .settings-field {
+.compose-sidebar__section + .compose-sidebar__section {
   margin-top: 22px;
 }
 
@@ -665,13 +669,13 @@ textarea {
     border-bottom: 1px solid var(--theme-border);
   }
 
-  .compose-layout,
+  .compose-layout--with-sidebar,
   .persona-grid,
   .compose-meta-grid {
     grid-template-columns: 1fr;
   }
 
-  .compose-settings {
+  .compose-sidebar {
     border-left: 0;
     border-top: 1px solid var(--theme-border);
   }
