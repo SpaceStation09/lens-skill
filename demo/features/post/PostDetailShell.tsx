@@ -10,6 +10,7 @@ import type { PostView } from "@/lib/lens/contracts";
 import { demoPosts } from "@/lib/lens/demo-data";
 import { fetchLensPost } from "@/lib/lens/service";
 import { getProfileHref } from "@/lib/utils/profile-path";
+import { normalizeMarkdownForRender } from "@/lib/utils/content";
 import { useLensSession } from "@/providers/LensSessionProvider";
 
 export function PostDetailShell({ postId }: { postId: string }) {
@@ -42,6 +43,7 @@ export function PostDetailShell({ postId }: { postId: string }) {
   }, [postId]);
 
   const content = post.content ?? "";
+  const normalizedContent = useMemo(() => normalizeMarkdownForRender(content), [content]);
   const wordCount = useMemo(() => content.split(/\s+/).filter(Boolean).length, [content]);
 
   return (
@@ -71,7 +73,7 @@ export function PostDetailShell({ postId }: { postId: string }) {
           <span>{wordCount} words</span>
         </div>
         <div className="article-template__body markdown-body">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizedContent}</ReactMarkdown>
         </div>
         <footer className="article-template__tags">
           <span>{status === "loading" ? "Loading" : "Tags:"}</span>
