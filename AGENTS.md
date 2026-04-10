@@ -1,26 +1,13 @@
 ## Skills
-A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
+本仓库用于维护 skills。可用 skills 如下：
 
-### Available skills
-- skill-creator: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Codex's capabilities with specialized knowledge, workflows, or tool integrations. (file: $CODEX_HOME/skills/.system/skill-creator/SKILL.md)
-- skill-installer: Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos). (file: $CODEX_HOME/skills/.system/skill-installer/SKILL.md)
-- demo-project-starter: Scaffold a runnable demo project quickly from a clear goal, with pragmatic stack choice, minimal architecture, setup commands, and acceptance checklist. Use when the user wants a new demo app/prototype/POC in this workspace. (file: ./skills/demo-project-starter/SKILL.md)
+- skill-creator: 创建或更新 skill 的指南。 (file: $CODEX_HOME/skills/.system/skill-creator/SKILL.md)
+- skill-installer: 安装 Codex skills 的指南。 (file: $CODEX_HOME/skills/.system/skill-installer/SKILL.md)
+- blog-frontend: 搭建基于 Next.js 的博客前端宿主层（最小 starter 内核 + 可替换 theme）。 (file: ./skills/blog-frontend/SKILL.md)
+- lens-interaction: 实现 Lens 交互层（登录、读取、发布、session）。 (file: ./skills/lens-interaction/SKILL.md)
+- lens-blog-builder: 从 0 到 1 编排 Lens 个人博客建设流程（访谈 + 流水线 + 联调交付）。 (file: ./skills/lens-blog-builder/SKILL.md)
 
-### How to use skills
-- Discovery: The list above is the skills available in this session (name + description + file path). Skill bodies live on disk at the listed paths.
-- Trigger rules: If the user names a skill (with `$SkillName` or plain text) OR the task clearly matches a skill's description shown above, you must use that skill for that turn. Multiple mentions mean use them all. Do not carry skills across turns unless re-mentioned.
-- Missing/blocked: If a named skill isn't in the list or the path can't be read, say so briefly and continue with the best fallback.
-- How to use a skill (progressive disclosure):
-  1) After deciding to use a skill, open its `SKILL.md`. Read only enough to follow the workflow.
-  2) When `SKILL.md` references relative paths (e.g., `scripts/foo.py`), resolve them relative to the skill directory listed above first, and only consider other paths if needed.
-  3) If `SKILL.md` points to extra folders such as `references/`, load only the specific files needed for the request; don't bulk-load everything.
-  4) If `scripts/` exist, prefer running or patching them instead of retyping large code blocks.
-  5) If `assets/` or templates exist, reuse them instead of recreating from scratch.
-- Coordination and sequencing:
-  - If multiple skills apply, choose the minimal set that covers the request and state the order you'll use them.
-  - Announce which skill(s) you're using and why (one short line). If you skip an obvious skill, say why.
-- Context hygiene:
-  - Keep context small: summarize long sections instead of pasting them; only load extra files when needed.
-  - Avoid deep reference-chasing: prefer opening only files directly linked from `SKILL.md` unless you're blocked.
-  - When variants exist (frameworks, providers, domains), pick only the relevant reference file(s) and note that choice.
-- Safety and fallback: If a skill can't be applied cleanly (missing files, unclear instructions), state the issue, pick the next-best approach, and continue.
+## 触发规则（极简）
+- 若用户明确点名某个 skill，或任务与某个 skill 描述明显匹配，则本轮必须使用该 skill。
+- 若同时匹配多个 skill，使用能覆盖需求的最小集合。
+- 若 skill 缺失或路径不可读，简要说明并采用可行替代方案继续执行。

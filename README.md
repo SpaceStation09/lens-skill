@@ -1,63 +1,77 @@
-# lens-skills (WIP)
+# lens-skills
 
-本仓库用于维护和实验 Codex Skills，并附带一个可运行的 Lens 博客 demo 项目。现阶段仍处于测试阶段，谨慎使用。
+用于维护 Lens blog 相关的 Codex skills，包括：
 
-## 目录结构
+1. Lens 交互层规范
+2. 博客前端 baseline
+3. 顶层建站编排入口
 
-```txt
-lens-skills/
-├── AGENTS.md
-├── skills/
-│   ├── lens-blog/
-│   │   ├── SKILL.md
-│   │   └── reference.md
-│   └── demo-project-starter/
-│       └── SKILL.md
-└── lens-blog-demo/
-    ├── src/
-    ├── package.json
-    └── .env.example
-```
+## Current Skills
 
-## 包含内容
+1. `skills/lens-interaction`
+   - 定义 Lens 交互层规范
+   - 覆盖运行时配置、认证、account/post 读写与 data contract
+2. `skills/blog-frontend`
+   - 定义 Lens 博客前端 baseline
+   - 覆盖 `starter-shell`、`default theme`、钱包前端接入与主题开发规则
+3. `skills/lens-blog-builder`
+   - 作为入口 skill
+   - 负责实现路径判断、结构化需求摘要与子 skill 编排
 
-- `skills/lens-blog`: 使用 Lens Protocol 构建个人博客的技能说明（含 API 参考与兼容性注意事项）
-- `skills/demo-project-starter`: 快速生成 demo 项目的通用技能模板
-- `lens-blog-demo`: React + TypeScript + Lens SDK 的最小可运行示例
+## Current Structure
 
-## 快速开始（运行 demo）
+当前体系按三层拆分：
 
-```bash
-cd ./lens-blog-demo
-cp .env.example .env
-npm install
-npm run dev
-```
+1. `lens-blog-builder`
+   - 入口与编排层
+2. `lens-interaction`
+   - Lens 交互层
+3. `blog-frontend`
+   - 前端宿主层与主题层
 
-## 环境变量（`lens-blog-demo/.env`）
+## Design Principles
 
-```env
-VITE_LENS_NETWORK=testnet
-# VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-# VITE_LENS_APP_ADDRESS=0xYourCustomOrGlobalAppAddress
-```
+1. `lens-interaction` 只负责 Lens 交互、配置与稳定数据契约。
+2. `blog-frontend` 只负责前端宿主层、starter shell、theme 与钱包前端接入。
+3. `lens-blog-builder` 只负责确认关键决策、判断实现路径和调度子 skill。
+4. 默认优先走官方 baseline，而不是每次从零设计整套系统。
+5. theme 可以定制，但必须与 `starter-shell` 保持解耦。
 
-- 默认无需额外配置即可运行 demo（默认 `testnet` + 默认 Lens global app address）
-- `VITE_LENS_NETWORK`: 可选，`testnet` 或 `mainnet`
-- `VITE_WALLETCONNECT_PROJECT_ID`: 可选，WalletConnect Cloud 项目 ID
-- `VITE_LENS_APP_ADDRESS`: 可选，覆盖默认 App 地址
+## Blog Frontend Assets
 
-## 技能使用方式
+`skills/blog-frontend` 当前分发两套官方资产：
 
-在对话中显式点名技能即可触发，例如：
+1. `skills/blog-frontend/assets/starter-shell/`
+   - 官方结构层 baseline
+   - 基于 Next.js App Router
+2. `skills/blog-frontend/assets/themes/default/`
+   - 官方默认主题层
+   - 当前设计语言是 editorial minimal / monochrome monolith
 
-- `请用 $lens-blog 帮我搭一个 Lens 个人博客`
-- `请用 $demo-project-starter 起一个新的 demo 项目`
+## References
 
-## 发布到 GitHub 前建议
+关键参考文档主要位于各 skill 的 `references/` 下：
 
-1. 确认 `.env` 不会提交（已在 `.gitignore` 中忽略）
-2. 本地构建检查：
-   - `cd lens-blog-demo && npm run build`
-3. 提交前检查变更：
-   - `git status`
+1. `skills/lens-interaction/references/`
+   - `configuration.md`
+   - `authentication.md`
+   - `accounts.md`
+   - `posts.md`
+   - `data-contract.md`
+2. `skills/blog-frontend/references/`
+   - `baseline-architecture.md`
+   - `starter-shell-structure.md`
+   - `page-information-model.md`
+   - `privy-integration.md`
+   - `theme-layer-model.md`
+   - `theme-development-guide.md`
+3. `skills/lens-blog-builder/references/`
+   - `interview-checklist.md`
+   - `pipeline-checkpoints.md`
+   - `builder-output-example.md`
+
+## Notes
+
+1. Lens SDK 示例当前默认基于 `@lens-protocol/client@canary`，以 `skills/lens-interaction/references/configuration.md` 为准。
+2. 默认钱包方案是 `Privy`，前端最小接线说明见 `skills/blog-frontend/references/privy-integration.md`。
+3. 若后续继续扩展真实实现或更多主题，优先沿现有三层结构演进，而不是在 README 中重新定义规则。

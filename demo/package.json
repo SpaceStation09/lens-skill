@@ -1,0 +1,30 @@
+{
+  "name": "lens-blog-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@farcaster/mini-app-solana": "^1.1.3",
+    "@lens-chain/storage-client": "^1.0.6",
+    "@lens-protocol/client": "^0.0.0-canary-20250820102520",
+    "@lens-protocol/metadata": "^2.1.0",
+    "@privy-io/react-auth": "^3.20.0",
+    "next": "15.2.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "viem": "^2.47.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.14",
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.5",
+    "typescript": "5.8.2"
+  }
+}
